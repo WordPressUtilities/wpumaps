@@ -1,0 +1,163 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WPU Maps\n"
+"POT-Creation-Date: 2025-11-14 20:18+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-KeywordsList: __;_x;_e\n"
+"X-Generator: Poedit 3.8\n"
+"X-Poedit-SearchPath-0: ../.\n"
+"X-Poedit-SearchPathExcluded-0: inc/WPUBaseAdminDatas\n"
+"X-Poedit-SearchPathExcluded-1: inc/WPUBaseAdminPage\n"
+"X-Poedit-SearchPathExcluded-2: inc/WPUBaseCron\n"
+"X-Poedit-SearchPathExcluded-3: inc/WPUBaseEmail\n"
+"X-Poedit-SearchPathExcluded-4: inc/WPUBaseFields\n"
+"X-Poedit-SearchPathExcluded-5: inc/WPUBaseFileCache\n"
+"X-Poedit-SearchPathExcluded-6: inc/WPUBaseMessages\n"
+"X-Poedit-SearchPathExcluded-7: inc/WPUBaseSettings\n"
+"X-Poedit-SearchPathExcluded-8: inc/WPUBaseToolbox\n"
+"X-Poedit-SearchPathExcluded-9: inc/WPUBaseUpdate\n"
+
+#: .././inc/WPUBaseFields/WPUBaseFields.php:153
+msgid "Select a value"
+msgstr ""
+
+#: .././inc/WPUBaseFields/WPUBaseFields.php:228
+msgid "Required"
+msgstr ""
+
+#: .././inc/WPUBaseFields/WPUBaseFields.php:292
+msgid "Select a file"
+msgstr ""
+
+#: .././inc/WPUBaseFields/WPUBaseFields.php:293
+msgid "Remove file"
+msgstr ""
+
+#: .././inc/WPUBaseFields/WPUBaseFields.php:295
+msgid "Select an image"
+msgstr ""
+
+#: .././inc/WPUBaseFields/WPUBaseFields.php:296
+msgid "Remove image"
+msgstr ""
+
+#: .././inc/WPUBaseFields/WPUBaseFields.php:341
+msgid "This field is invalid"
+msgstr ""
+
+#: .././inc/WPUBaseSettings/WPUBaseSettings.php:135
+#: .././inc/WPUBaseSettings/WPUBaseSettings.php:703
+#: .././inc/WPUBaseSettings/WPUBaseSettings.php:710 .././wpumaps.php:90
+#: .././wpumaps.php:107
+msgid "Settings"
+msgstr "Réglages"
+
+#: .././inc/WPUBaseSettings/WPUBaseSettings.php:165
+#: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:244
+msgid "No"
+msgstr "Non"
+
+#: .././inc/WPUBaseSettings/WPUBaseSettings.php:165
+#: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:245
+msgid "Yes"
+msgstr ""
+
+#: .././inc/WPUBaseSettings/WPUBaseSettings.php:214
+msgid "Check all"
+msgstr "Tout cocher"
+
+#: .././inc/WPUBaseSettings/WPUBaseSettings.php:215
+msgid "Uncheck all"
+msgstr ""
+
+#: .././inc/WPUBaseSettings/WPUBaseSettings.php:329
+msgid "Settings saved."
+msgstr ""
+
+#: .././inc/WPUBaseSettings/WPUBaseSettings.php:389
+msgid "Upload New Media"
+msgstr ""
+
+#: .././inc/WPUBaseSettings/WPUBaseSettings.php:590
+msgid "Language"
+msgstr "Langue"
+
+#: .././inc/WPUBaseSettings/WPUBaseSettings.php:725
+msgid "Save"
+msgstr ""
+
+#: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:169
+msgid "Submit"
+msgstr ""
+
+#: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:195
+msgid "Previous"
+msgstr ""
+
+#: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:196
+msgid "Next"
+msgstr "Suivant"
+
+#: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:388
+#, php-format
+msgid "The field “%s” is required"
+msgstr ""
+
+#: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:393
+#, php-format
+msgid "The field “%s” should be an email"
+msgstr ""
+
+#: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:674
+#, php-format
+msgid ""
+"The plugin <b>%s</b> depends on the following plugins. Please install and "
+"activate them:"
+msgstr ""
+
+#: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:680
+#, php-format
+msgid ""
+"The plugin <b>%s</b> depends on the <b>%s</b> plugin. Please install and "
+"activate it."
+msgstr ""
+
+#: .././wpumaps.php:64
+msgid "Zoom level"
+msgstr ""
+
+#: .././wpumaps.php:73
+msgid "Address"
+msgstr "Adresse"
+
+#: .././wpumaps.php:77
+msgid "Latitude"
+msgstr "Latitude"
+
+#: .././wpumaps.php:81
+msgid "Longitude"
+msgstr "Longitude"
+
+#: .././wpumaps.php:114
+msgid "Mapbox"
+msgstr ""
+
+#: .././wpumaps.php:120
+msgid "Mapbox Key"
+msgstr "Clé Mapbox"
+
+#: .././wpumaps.php:134
+msgid "Maps"
+msgstr "Cartes"
+
+#: .././wpumaps.php:142 .././wpumaps.php:157 .././wpumaps.php:158
+msgid "Markers"
+msgstr "Marqueurs"
