@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU Maps\n"
-"POT-Creation-Date: 2025-11-14 20:18+0100\n"
+"POT-Creation-Date: 2025-11-16 22:36+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -27,36 +27,35 @@ msgstr ""
 
 #: .././inc/WPUBaseFields/WPUBaseFields.php:153
 msgid "Select a value"
-msgstr ""
+msgstr "Sélectionnez une valeur"
 
-#: .././inc/WPUBaseFields/WPUBaseFields.php:228
+#: .././inc/WPUBaseFields/WPUBaseFields.php:240
 msgid "Required"
-msgstr ""
+msgstr "Requis"
 
-#: .././inc/WPUBaseFields/WPUBaseFields.php:292
+#: .././inc/WPUBaseFields/WPUBaseFields.php:304
 msgid "Select a file"
-msgstr ""
+msgstr "Sélectionner un fichier"
 
-#: .././inc/WPUBaseFields/WPUBaseFields.php:293
+#: .././inc/WPUBaseFields/WPUBaseFields.php:305
 msgid "Remove file"
-msgstr ""
+msgstr "Retirer le fichier"
 
-#: .././inc/WPUBaseFields/WPUBaseFields.php:295
+#: .././inc/WPUBaseFields/WPUBaseFields.php:307
 msgid "Select an image"
-msgstr ""
+msgstr "Sélectionner une image"
 
-#: .././inc/WPUBaseFields/WPUBaseFields.php:296
+#: .././inc/WPUBaseFields/WPUBaseFields.php:308
 msgid "Remove image"
-msgstr ""
+msgstr "Retirer l’image"
 
-#: .././inc/WPUBaseFields/WPUBaseFields.php:341
+#: .././inc/WPUBaseFields/WPUBaseFields.php:353
 msgid "This field is invalid"
-msgstr ""
+msgstr "Ce champ est invalide"
 
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:135
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:703
-#: .././inc/WPUBaseSettings/WPUBaseSettings.php:710 .././wpumaps.php:90
-#: .././wpumaps.php:107
+#: .././inc/WPUBaseSettings/WPUBaseSettings.php:710 .././wpumaps.php:162
 msgid "Settings"
 msgstr "Réglages"
 
@@ -68,7 +67,7 @@ msgstr "Non"
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:165
 #: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:245
 msgid "Yes"
-msgstr ""
+msgstr "Oui"
 
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:214
 msgid "Check all"
@@ -76,15 +75,15 @@ msgstr "Tout cocher"
 
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:215
 msgid "Uncheck all"
-msgstr ""
+msgstr "Tout décocher"
 
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:329
 msgid "Settings saved."
-msgstr ""
+msgstr "Paramètres sauvegardés."
 
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:389
 msgid "Upload New Media"
-msgstr ""
+msgstr "Envoi d'un nouveau média"
 
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:590
 msgid "Language"
@@ -92,15 +91,15 @@ msgstr "Langue"
 
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:725
 msgid "Save"
-msgstr ""
+msgstr "Sauvegarder"
 
 #: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:169
 msgid "Submit"
-msgstr ""
+msgstr "Envoyer"
 
 #: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:195
 msgid "Previous"
-msgstr ""
+msgstr "Précédent"
 
 #: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:196
 msgid "Next"
@@ -109,12 +108,12 @@ msgstr "Suivant"
 #: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:388
 #, php-format
 msgid "The field “%s” is required"
-msgstr ""
+msgstr "Le champ « %s » est obligatoire"
 
 #: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:393
 #, php-format
 msgid "The field “%s” should be an email"
-msgstr ""
+msgstr "Le champ « %s » doit être un email"
 
 #: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:674
 #, php-format
@@ -122,6 +121,8 @@ msgid ""
 "The plugin <b>%s</b> depends on the following plugins. Please install and "
 "activate them:"
 msgstr ""
+"Le plugin <b>%s</b> dépend des plugins suivants. Veuillez les installer et "
+"les activer :"
 
 #: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:680
 #, php-format
@@ -129,35 +130,57 @@ msgid ""
 "The plugin <b>%s</b> depends on the <b>%s</b> plugin. Please install and "
 "activate it."
 msgstr ""
+"Le plugin <b>%s</b> dépend du plugin <b>%s</b>. Merci de l’installer et de "
+"l’activer."
 
-#: .././wpumaps.php:64
-msgid "Zoom level"
-msgstr ""
-
-#: .././wpumaps.php:73
+#: .././wpumaps.php:77
 msgid "Address"
 msgstr "Adresse"
 
-#: .././wpumaps.php:77
+#: .././wpumaps.php:81
 msgid "Latitude"
 msgstr "Latitude"
 
-#: .././wpumaps.php:81
+#: .././wpumaps.php:88
 msgid "Longitude"
 msgstr "Longitude"
 
-#: .././wpumaps.php:114
-msgid "Mapbox"
-msgstr ""
+#: .././wpumaps.php:103 .././wpumaps.php:142
+msgid "Coordinates"
+msgstr "Coordonnées"
 
-#: .././wpumaps.php:120
+#: .././wpumaps.php:107
+msgid "Zoom level"
+msgstr "Niveau de zoom"
+
+#: .././wpumaps.php:132 .././wpumaps.php:201
+msgid "Marker Categories"
+msgstr "Catégories de marqueur"
+
+#: .././wpumaps.php:135
+msgid ""
+"Select the categories of markers to display on this map. If none selected, "
+"all categories will be displayed."
+msgstr ""
+"Sélectionnez les catégories de marqueurs à afficher sur cette carte. Si "
+"aucune n’est sélectionnée, toutes les catégories seront affichées."
+
+#: .././wpumaps.php:169
+msgid "Mapbox"
+msgstr "Mapbox"
+
+#: .././wpumaps.php:175
 msgid "Mapbox Key"
 msgstr "Clé Mapbox"
 
-#: .././wpumaps.php:134
+#: .././wpumaps.php:187
 msgid "Maps"
 msgstr "Cartes"
 
-#: .././wpumaps.php:142 .././wpumaps.php:157 .././wpumaps.php:158
+#: .././wpumaps.php:195 .././wpumaps.php:215 .././wpumaps.php:216
 msgid "Markers"
 msgstr "Marqueurs"
+
+#: .././wpumaps.php:224 .././wpumaps.php:225
+msgid "Categories"
+msgstr "Catégories"

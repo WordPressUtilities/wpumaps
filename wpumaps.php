@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.0.1
+Version: 0.1.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.0.1';
+    private $plugin_version = '0.1.0';
     private $plugin_settings = array(
         'id' => 'wpumaps',
         'name' => 'WPU Maps'
@@ -36,16 +36,18 @@ class WPUMaps {
     private $plugin_description;
 
     public function __construct() {
+        add_action('init', array(&$this, 'register_entities'));
         add_action('init', array(&$this, 'load_toolbox'));
         add_action('init', array(&$this, 'load_fields'));
         add_action('init', array(&$this, 'load_settings'));
-        add_action('init', array(&$this, 'register_post_type'));
 
         /* Menu */
         add_action('admin_menu', array(&$this, 'admin_menu'));
         add_action('admin_head-post-new.php', array($this, 'admin_head'));
         add_action('admin_head-post.php', array($this, 'admin_head'));
         add_action('admin_head-edit.php', array($this, 'admin_head'));
+        add_action('admin_head-edit-tags.php', array($this, 'admin_head'));
+        add_action('admin_head-term.php', array($this, 'admin_head'));
 
         /* Assets */
         add_action('admin_enqueue_scripts', array(&$this, 'admin_enqueue_scripts'));
@@ -93,35 +95,67 @@ class WPUMaps {
             )
         );
 
-        $fields = array(
-            'map_zoom' => array(
-                'label' => __('Zoom level', 'wpumaps'),
-                'type' => 'number',
+        $fields = array();
+        $field_groups = array();
+
+        /* MAP */
+        $field_groups['maps'] = array(
+            'label' => __('Coordinates', 'wpumaps'),
+            'post_type' => array('maps')
+        );
+        $fields['map_zoom'] = array(
+            'label' => __('Zoom level', 'wpumaps'),
+            'type' => 'number',
+            'group' => 'maps',
+            'extra_attributes' => array(
+                'step' => '1',
+                'min' => '0',
+                'max' => '22'
+            )
+        );
+        $fields['map_lat_lng'] = array_merge(
+            $field_lat_lng,
+            array(
                 'group' => 'maps'
-            ),
-            'map_lat_lng' => array_merge(
-                $field_lat_lng,
-                array(
-                    'group' => 'maps'
-                )
-            ),
-            'marker_lat_lng' => array_merge(
-                $field_lat_lng,
-                array(
-                    'group' => 'markers'
-                )
             )
         );
-        $field_groups = array(
-            'maps' => array(
-                'label' => __('Coordinates', 'wpumaps'),
+
+        $map_categories = get_terms(array(
+            'taxonomy' => 'marker_categories',
+            'hide_empty' => false
+        ));
+        if (!empty($map_categories)) {
+            $field_groups['maps_settings'] = array(
+                'label' => __('Settings', 'wpumaps'),
                 'post_type' => array('maps')
-            ),
-            'markers' => array(
-                'label' => __('Coordinates', 'wpumaps'),
-                'post_type' => array('map_markers')
+            );
+
+            $categories = array();
+            foreach ($map_categories as $category) {
+                $categories[$category->term_id] = $category->name . ' (' . $category->count . ')';
+            }
+            $fields['map_categories'] = array(
+                'label' => __('Marker Categories', 'wpumaps'),
+                'type' => 'checkboxes',
+                'taxonomy' => 'marker_categories',
+                'help' => __('Select the categories of markers to display on this map. If none selected, all categories will be displayed.', 'wpumaps'),
+                'group' => 'maps_settings',
+                'data' => $categories
+            );
+        }
+
+        /* MARKERS */
+        $field_groups['markers'] = array(
+            'label' => __('Coordinates', 'wpumaps'),
+            'post_type' => array('map_markers')
+        );
+        $fields['marker_lat_lng'] = array_merge(
+            $field_lat_lng,
+            array(
+                'group' => 'markers'
             )
         );
+
         require_once __DIR__ . '/inc/WPUBaseFields/WPUBaseFields.php';
         $this->basefields = new \wpumaps\WPUBaseFields($fields, $field_groups);
     }
@@ -152,7 +186,7 @@ class WPUMaps {
         $this->settings_obj = new \wpumaps\WPUBaseSettings($this->settings_details, $this->settings);
     }
 
-    public function register_post_type() {
+    public function register_entities() {
         # MAPS
         register_post_type('maps', array(
             'public' => true,
@@ -169,6 +203,14 @@ class WPUMaps {
             'menu_icon' => 'dashicons-location-alt',
             'supports' => array('title')
         ));
+        # MARKER CATEGORIES
+        register_taxonomy('marker_categories', 'map_markers', array(
+            'label' => __('Marker Categories', 'wpumaps'),
+            'hierarchical' => true,
+            'public' => true,
+            'publicly_queryable' => false,
+            'show_admin_column' => true
+        ));
     }
 
     /* ----------------------------------------------------------
@@ -184,6 +226,13 @@ class WPUMaps {
             'edit.php?post_type=map_markers',
             null,
             1
+        );
+        add_submenu_page(
+            'edit.php?post_type=maps',
+            __('Categories', 'wpumaps'),
+            __('Categories', 'wpumaps'),
+            'manage_categories',
+            'edit-tags.php?taxonomy=marker_categories&post_type=map_markers'
         );
         remove_menu_page('edit.php?post_type=map_markers');
         remove_submenu_page('edit.php?post_type=maps', 'post-new.php?post_type=maps');
@@ -236,10 +285,22 @@ class WPUMaps {
     ---------------------------------------------------------- */
 
     public function get_markers($map_id) {
-        $markers_posts = get_posts(array(
+        $q = array(
             'post_type' => 'map_markers',
             'posts_per_page' => -1
-        ));
+        );
+
+        $selected_categories = get_post_meta($map_id, 'map_categories', 1);
+        if (!empty($selected_categories)) {
+            $q['tax_query'] = array(
+                array(
+                    'taxonomy' => 'marker_categories',
+                    'field' => 'term_id',
+                    'terms' => $selected_categories
+                )
+            );
+        }
+        $markers_posts = get_posts($q);
 
         $markers = array();
         foreach ($markers_posts as $marker) {
