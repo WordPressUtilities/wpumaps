@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU Maps\n"
-"POT-Creation-Date: 2025-11-16 22:36+0100\n"
+"POT-Creation-Date: 2025-11-17 21:48+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -55,7 +55,8 @@ msgstr "Ce champ est invalide"
 
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:135
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:703
-#: .././inc/WPUBaseSettings/WPUBaseSettings.php:710 .././wpumaps.php:162
+#: .././inc/WPUBaseSettings/WPUBaseSettings.php:710 .././wpumaps.php:129
+#: .././wpumaps.php:169
 msgid "Settings"
 msgstr "Réglages"
 
@@ -145,7 +146,7 @@ msgstr "Latitude"
 msgid "Longitude"
 msgstr "Longitude"
 
-#: .././wpumaps.php:103 .././wpumaps.php:142
+#: .././wpumaps.php:103 .././wpumaps.php:149
 msgid "Coordinates"
 msgstr "Coordonnées"
 
@@ -153,11 +154,11 @@ msgstr "Coordonnées"
 msgid "Zoom level"
 msgstr "Niveau de zoom"
 
-#: .././wpumaps.php:132 .././wpumaps.php:201
+#: .././wpumaps.php:138 .././wpumaps.php:228
 msgid "Marker Categories"
 msgstr "Catégories de marqueur"
 
-#: .././wpumaps.php:135
+#: .././wpumaps.php:141
 msgid ""
 "Select the categories of markers to display on this map. If none selected, "
 "all categories will be displayed."
@@ -165,22 +166,86 @@ msgstr ""
 "Sélectionnez les catégories de marqueurs à afficher sur cette carte. Si "
 "aucune n’est sélectionnée, toutes les catégories seront affichées."
 
-#: .././wpumaps.php:169
+#: .././wpumaps.php:176
 msgid "Mapbox"
 msgstr "Mapbox"
 
-#: .././wpumaps.php:175
+#: .././wpumaps.php:182
 msgid "Mapbox Key"
 msgstr "Clé Mapbox"
 
-#: .././wpumaps.php:187
+#: .././wpumaps.php:194
 msgid "Maps"
 msgstr "Cartes"
 
-#: .././wpumaps.php:195 .././wpumaps.php:215 .././wpumaps.php:216
+#: .././wpumaps.php:198
+msgid "All Maps"
+msgstr "Toutes les cartes"
+
+#: .././wpumaps.php:199
+msgid "Add New Map"
+msgstr "Ajouter une nouvelle carte"
+
+#: .././wpumaps.php:200
+msgid "Edit Map"
+msgstr "Modifier la carte"
+
+#: .././wpumaps.php:201
+msgid "New Map"
+msgstr "Nouvelle carte"
+
+#: .././wpumaps.php:202
+msgid "View Map"
+msgstr "Voir la carte"
+
+#: .././wpumaps.php:203
+msgid "Search Maps"
+msgstr "Rechercher des cartes"
+
+#: .././wpumaps.php:204
+msgid "No maps found"
+msgstr "Aucune carte trouvée"
+
+#: .././wpumaps.php:205
+msgid "No maps found in Trash"
+msgstr "Aucune carte trouvée dans la corbeille"
+
+#: .././wpumaps.php:212 .././wpumaps.php:243 .././wpumaps.php:244
 msgid "Markers"
 msgstr "Marqueurs"
 
-#: .././wpumaps.php:224 .././wpumaps.php:225
+#: .././wpumaps.php:216
+msgid "All Markers"
+msgstr "Tous les marqueurs"
+
+#: .././wpumaps.php:217
+msgid "Add New Marker"
+msgstr "Ajouter un nouveau marqueur"
+
+#: .././wpumaps.php:218
+msgid "Edit Marker"
+msgstr "Editer marqueur"
+
+#: .././wpumaps.php:219
+msgid "New Marker"
+msgstr "Nouveau marqueur"
+
+#: .././wpumaps.php:220
+msgid "View Marker"
+msgstr "Voir le marqueur"
+
+#: .././wpumaps.php:221
+msgid "Search Markers"
+msgstr "Rechercher des marqueurs"
+
+#: .././wpumaps.php:222
+msgid "No markers found"
+msgstr "Aucun marqueur trouvé"
+
+#: .././wpumaps.php:223
+msgid "No markers found in Trash"
+msgstr "Aucun marqueur trouvé dans la corbeille"
+
+#: .././wpumaps.php:252 .././wpumaps.php:253
 msgid "Categories"
 msgstr "Catégories"

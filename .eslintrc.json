@@ -14,7 +14,9 @@
         "no-undef": 1
     },
     "globals": {
-        "_options": true,
+        "mapboxgl": true,
+        "mapboxsearch": true,
+        "wpumaps_admin_settings": true,
         "wp": true,
         "jQuery": true
     }

@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.1.0
+Version: 0.2.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.1.0';
+    private $plugin_version = '0.2.0';
     private $plugin_settings = array(
         'id' => 'wpumaps',
         'name' => 'WPU Maps'
@@ -149,11 +149,25 @@ class WPUMaps {
             'label' => __('Coordinates', 'wpumaps'),
             'post_type' => array('map_markers')
         );
+        $field_groups['markers_popup'] = array(
+            'label' => __('Popup', 'wpumaps'),
+            'post_type' => array('map_markers')
+        );
         $fields['marker_lat_lng'] = array_merge(
             $field_lat_lng,
             array(
                 'group' => 'markers'
             )
+        );
+        $fields['marker_icon'] = array(
+            'label' => __('Icon', 'wpumaps'),
+            'type' => 'image',
+            'group' => 'markers'
+        );
+        $fields['marker_popup_content'] = array(
+            'label' => __('Popup Content', 'wpumaps'),
+            'type' => 'textarea',
+            'group' => 'markers_popup'
         );
 
         require_once __DIR__ . '/inc/WPUBaseFields/WPUBaseFields.php';
@@ -190,18 +204,48 @@ class WPUMaps {
         # MAPS
         register_post_type('maps', array(
             'public' => true,
+            'show_in_admin_bar' => false,
+            'show_in_menu' => true,
+            'show_in_nav_menus' => false,
+            'show_in_rest' => false,
+            'rewrite' => false,
             'publicly_queryable' => false,
             'label' => __('Maps', 'wpumaps'),
             'menu_icon' => 'dashicons-location-alt',
-            'supports' => array('title')
+            'supports' => array('title'),
+            'labels' => array(
+                'all_items' => __('All Maps', 'wpumaps'),
+                'add_new_item' => __('Add New Map', 'wpumaps'),
+                'edit_item' => __('Edit Map', 'wpumaps'),
+                'new_item' => __('New Map', 'wpumaps'),
+                'view_item' => __('View Map', 'wpumaps'),
+                'search_items' => __('Search Maps', 'wpumaps'),
+                'not_found' => __('No maps found', 'wpumaps'),
+                'not_found_in_trash' => __('No maps found in Trash', 'wpumaps')
+            )
         ));
         # MARKERS
         register_post_type('map_markers', array(
             'public' => true,
+            'show_in_admin_bar' => false,
+            'show_in_menu' => true,
+            'show_in_nav_menus' => false,
+            'show_in_rest' => false,
+            'rewrite' => false,
             'publicly_queryable' => false,
             'label' => __('Markers', 'wpumaps'),
             'menu_icon' => 'dashicons-location-alt',
-            'supports' => array('title')
+            'supports' => array('title'),
+            'labels' => array(
+                'all_items' => __('All Markers', 'wpumaps'),
+                'add_new_item' => __('Add New Marker', 'wpumaps'),
+                'edit_item' => __('Edit Marker', 'wpumaps'),
+                'new_item' => __('New Marker', 'wpumaps'),
+                'view_item' => __('View Marker', 'wpumaps'),
+                'search_items' => __('Search Markers', 'wpumaps'),
+                'not_found' => __('No markers found', 'wpumaps'),
+                'not_found_in_trash' => __('No markers found in Trash', 'wpumaps')
+            )
         ));
         # MARKER CATEGORIES
         register_taxonomy('marker_categories', 'map_markers', array(
@@ -304,10 +348,21 @@ class WPUMaps {
 
         $markers = array();
         foreach ($markers_posts as $marker) {
+            $popup_content = get_post_meta($marker->ID, 'marker_popup_content', 1);
+            if ($popup_content) {
+                $popup_content = trim(esc_html($popup_content));
+            }
+            $marker_icon_id = get_post_meta($marker->ID, 'marker_icon', 1);
+            $marker_icon_url = '';
+            if ($marker_icon_id) {
+                $marker_icon_url = wp_get_attachment_image_url($marker_icon_id, 'medium');
+            }
             $marker = array(
                 'name' => get_the_title($marker),
                 'lat' => (get_post_meta($marker->ID, 'marker_lat_lng__lat', 1)),
-                'lng' => (get_post_meta($marker->ID, 'marker_lat_lng__lng', 1))
+                'lng' => (get_post_meta($marker->ID, 'marker_lat_lng__lng', 1)),
+                'icon_url' => $marker_icon_url,
+                'popup_content' => $popup_content
             );
             $markers[] = $marker;
         }

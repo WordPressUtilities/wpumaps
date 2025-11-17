@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function wpumaps_setup_autofill($fields) {
     'use strict';
     const autofillElement = new mapboxsearch.MapboxAddressAutofill()
-    autofillElement.accessToken = wpumaps_admin_settings.mapbox_key;;
+    autofillElement.accessToken = wpumaps_admin_settings.mapbox_key;
 
     $fields.forEach(function($field) {
 

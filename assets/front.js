@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     if (!window.wpumaps_settings || !window.wpumaps_settings.mapbox_key) {
-        console.error('WPU Maps: Missing Mapbox API key.');
         return;
     }
 
@@ -71,7 +70,7 @@ function wpumaps_load_map(_map) {
 
     /* If zoom is 0 and we have markers, fit bounds */
     if (_map.map_details.zoom === 0) {
-        if (_map.markers.length > 1){
+        if (_map.markers.length > 1) {
             var bounds = new mapboxgl.LngLatBounds();
             _map.markers.forEach(function(marker) {
                 bounds.extend([marker.lng, marker.lat]);
@@ -80,17 +79,39 @@ function wpumaps_load_map(_map) {
                 padding: 60,
                 duration: 0
             });
-        }
-        else {
+        } else {
             map.setZoom(14);
         }
     }
 
     /* Add markers */
     _map.markers.forEach(function(marker) {
-        new mapboxgl.Marker()
+
+        var _marker_params = {};
+        if (marker.icon_url) {
+            var _icon_el = document.createElement('div');
+            _icon_el = document.createElement('div');
+            _icon_el.className = 'wpumaps-marker-icon';
+            _icon_el.style.backgroundImage = 'url(' + marker.icon_url + ')';
+            _marker_params.element = _icon_el;
+            _marker_params.offset = {
+                x: 0,
+                y: -16
+            };
+
+        }
+
+        var _marker = new mapboxgl.Marker(_marker_params)
             .setLngLat([marker.lng, marker.lat])
             .addTo(map);
+
+        if (marker.popup_content && marker.popup_content.length) {
+            var popup = new mapboxgl.Popup()
+                .setHTML(marker.popup_content);
+            _marker.setPopup(popup);
+        }
+
+
     });
 
 
