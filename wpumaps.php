@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.2.0
+Version: 0.3.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.2.0';
+    private $plugin_version = '0.3.0';
     private $plugin_settings = array(
         'id' => 'wpumaps',
         'name' => 'WPU Maps'
@@ -54,12 +54,7 @@ class WPUMaps {
         add_action('wp_enqueue_scripts', array(&$this, 'wp_enqueue_scripts'));
 
         /* Shortcode */
-        add_shortcode('wpumaps_map', function ($atts) {
-            $atts = shortcode_atts(array(
-                'id' => ''
-            ), $atts, 'wpumaps_map');
-            return $this->display_map($atts['id']);
-        });
+        add_shortcode('wpumaps_map', array($this, 'display_map'));
     }
 
     public function load_toolbox() {
@@ -328,13 +323,24 @@ class WPUMaps {
       GET MAP
     ---------------------------------------------------------- */
 
-    public function get_markers($map_id) {
+    public function get_markers_from_map($args) {
         $q = array(
             'post_type' => 'map_markers',
             'posts_per_page' => -1
         );
-
-        $selected_categories = get_post_meta($map_id, 'map_categories', 1);
+        if (!is_array($args)) {
+            $args = array();
+        }
+        $selected_categories = array();
+        if (isset($args['map_id'])) {
+            $selected_categories = get_post_meta($args['map_id'], 'map_categories', 1);
+        }
+        if (isset($args['categories'])) {
+            $selected_categories = $args['categories'];
+        }
+        if (isset($args['marker_id'])) {
+            $q['post__in'] = array($args['marker_id']);
+        }
         if (!empty($selected_categories)) {
             $q['tax_query'] = array(
                 array(
@@ -344,29 +350,35 @@ class WPUMaps {
                 )
             );
         }
-        $markers_posts = get_posts($q);
+        return $this->get_markers_from_query(get_posts($q));
+    }
 
-        $markers = array();
-        foreach ($markers_posts as $marker) {
-            $popup_content = get_post_meta($marker->ID, 'marker_popup_content', 1);
-            if ($popup_content) {
-                $popup_content = trim(esc_html($popup_content));
-            }
-            $marker_icon_id = get_post_meta($marker->ID, 'marker_icon', 1);
-            $marker_icon_url = '';
-            if ($marker_icon_id) {
-                $marker_icon_url = wp_get_attachment_image_url($marker_icon_id, 'medium');
-            }
-            $marker = array(
-                'name' => get_the_title($marker),
-                'lat' => (get_post_meta($marker->ID, 'marker_lat_lng__lat', 1)),
-                'lng' => (get_post_meta($marker->ID, 'marker_lat_lng__lng', 1)),
-                'icon_url' => $marker_icon_url,
-                'popup_content' => $popup_content
-            );
-            $markers[] = $marker;
+    public function get_markers_from_query($markers) {
+        $markers_data = array();
+        foreach ($markers as $marker) {
+            $markers_data[] = $this->get_marker($marker);
         }
-        return $markers;
+        return $markers_data;
+    }
+
+    public function get_marker($marker) {
+        $popup_content = get_post_meta($marker->ID, 'marker_popup_content', 1);
+        if ($popup_content) {
+            $popup_content = trim(esc_html($popup_content));
+        }
+        $marker_icon_id = get_post_meta($marker->ID, 'marker_icon', 1);
+        $marker_icon_url = '';
+        if ($marker_icon_id) {
+            $marker_icon_url = wp_get_attachment_image_url($marker_icon_id, 'medium');
+        }
+        $marker_data = array(
+            'name' => get_the_title($marker),
+            'lat' => (get_post_meta($marker->ID, 'marker_lat_lng__lat', 1)),
+            'lng' => (get_post_meta($marker->ID, 'marker_lat_lng__lng', 1)),
+            'icon_url' => $marker_icon_url,
+            'popup_content' => $popup_content
+        );
+        return $marker_data;
     }
 
     public function get_map_details($map_id) {
@@ -378,10 +390,46 @@ class WPUMaps {
         return $map;
     }
 
-    public function display_map($map_id) {
-        ob_start();
-        require_once __DIR__ . '/inc/templates/map.php';
-        return ob_get_clean();
+    public function display_map($atts) {
+        $map_id = 'map_' . md5(json_encode($atts));
+
+        $map_details = array();
+        $markers = array();
+
+        if(isset($atts['id']) && !empty($atts['id'])){
+            $map_details = $this->get_map_details($atts['id']);
+            $markers = $this->get_markers_from_map(array('map_id' => $atts['id']));
+        }
+
+        if(isset($atts['categories']) && !empty($atts['categories'])){
+            $markers = $this->get_markers_from_map(array(
+                'categories' => explode(',', $atts['categories'])
+            ));
+        }
+        if(isset($atts['marker_id']) && !empty($atts['marker_id'])){
+            $markers = $this->get_markers_from_map(array('marker_id' => $atts['marker_id']));
+        }
+
+        $map_data = array(
+            'map_id' => $map_id,
+            'map_details' => $map_details,
+            'markers' => $markers
+        );
+
+        add_action('wp_footer', function () use ($map_data) {
+            echo '<script class="wpumaps__data">';
+            echo 'window.wpumaps = window.wpumaps || [];';
+            echo 'window.wpumaps.push(' . json_encode($map_data) . ');';
+            echo '</script>';
+        });
+
+        /* Wrapper */
+        $html = '<div class="wpumaps__wrapper" data-wpumaps="' . esc_attr($map_id) . '">';
+        $html .= '<div id="mymap" class="wpumaps__map"></div>';
+        $html .= '</div>';
+
+        return $html;
+
     }
 }
 

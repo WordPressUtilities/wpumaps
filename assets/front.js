@@ -41,6 +41,14 @@ function wpumaps_load_map(_map) {
         return;
     }
 
+    if (!_map.map_details || _map.map_details.length === 0) {
+        _map.map_details = {
+            lat: 0,
+            lng: 0,
+            zoom: 0
+        };
+    }
+
     /* if not lat or no lng, center between markers */
     if (_map.map_details.lat === 0 && _map.map_details.lng === 0) {
         var lats = _map.markers.map(function(marker) {
