@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.3.0
+Version: 0.4.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.3.0';
+    private $plugin_version = '0.4.0';
     private $plugin_settings = array(
         'id' => 'wpumaps',
         'name' => 'WPU Maps'
@@ -98,10 +98,19 @@ class WPUMaps {
             'label' => __('Coordinates', 'wpumaps'),
             'post_type' => array('maps')
         );
+        $fields['map_enable_autocenter'] = array(
+            'label' => __('Enable auto center', 'wpumaps'),
+            'type' => 'checkbox',
+            'help' => __('If enabled, the map will automatically center on the markers.', 'wpumaps'),
+            'group' => 'maps'
+        );
         $fields['map_zoom'] = array(
             'label' => __('Zoom level', 'wpumaps'),
             'type' => 'number',
             'group' => 'maps',
+            'toggle-display' => array(
+                'map_enable_autocenter' => 'notchecked'
+            ),
             'extra_attributes' => array(
                 'step' => '1',
                 'min' => '0',
@@ -111,7 +120,25 @@ class WPUMaps {
         $fields['map_lat_lng'] = array_merge(
             $field_lat_lng,
             array(
-                'group' => 'maps'
+                'group' => 'maps',
+                'toggle-display' => array(
+                    'map_enable_autocenter' => 'notchecked'
+                )
+            )
+        );
+        $fields['map_style'] = array(
+            'label' => __('Map style', 'wpumaps'),
+            'type' => 'select',
+            'group' => 'maps',
+            'data' => array(
+                'streets-v11' => 'Streets',
+                'outdoors-v11' => 'Outdoors',
+                'light-v10' => 'Light',
+                'dark-v10' => 'Dark',
+                'satellite-v9' => 'Satellite',
+                'satellite-streets-v11' => 'Satellite Streets',
+                'navigation-day-v1' => 'Navigation Day',
+                'navigation-night-v1' => 'Navigation Night'
             )
         );
 
@@ -291,6 +318,14 @@ class WPUMaps {
       ADMIN
     ---------------------------------------------------------- */
 
+    public function get_mapbox_key() {
+        $mapbox_key = apply_filters('wpumaps_mapbox_key', $this->settings_obj->get_setting('mapbox_key'));
+        if (defined('WPUMAPS_MAPBOX_KEY') && !empty(WPUMAPS_MAPBOX_KEY)) {
+            $mapbox_key = WPUMAPS_MAPBOX_KEY;
+        }
+        return $mapbox_key;
+    }
+
     public function admin_enqueue_scripts() {
         /* Back Style */
         wp_register_style('wpumaps_back_style', plugins_url('assets/back.css', __FILE__), array(), $this->plugin_version);
@@ -300,7 +335,7 @@ class WPUMaps {
         wp_localize_script('wpumaps_back_script', 'wpumaps_admin_settings', array(
             'mapbox_version' => $this->mapbox_version,
             'mapbox_autofill_version' => $this->mapbox_autofill_version,
-            'mapbox_key' => $this->settings_obj->get_setting('mapbox_key')
+            'mapbox_key' => $this->get_mapbox_key()
         ));
         wp_enqueue_script('wpumaps_back_script');
     }
@@ -314,7 +349,7 @@ class WPUMaps {
         wp_register_script('wpumaps_front_script', plugins_url('assets/front.js', __FILE__), array(), $this->plugin_version, true);
         wp_localize_script('wpumaps_front_script', 'wpumaps_settings', array(
             'mapbox_version' => $this->mapbox_version,
-            'mapbox_key' => $this->settings_obj->get_setting('mapbox_key')
+            'mapbox_key' => $this->get_mapbox_key()
         ));
         wp_enqueue_script('wpumaps_front_script');
     }
@@ -382,12 +417,20 @@ class WPUMaps {
     }
 
     public function get_map_details($map_id) {
-        $map = array(
-            'zoom' => intval(get_post_meta($map_id, 'map_zoom', 1)),
-            'lat' => floatval(get_post_meta($map_id, 'map_lat_lng__lat', 1)),
-            'lng' => floatval(get_post_meta($map_id, 'map_lat_lng__lng', 1))
+        $autocenter = get_post_meta($map_id, 'map_enable_autocenter', 1);
+        $map_details = array(
+            'zoom' => 0,
+            'lat' => 0,
+            'lng' => 0
         );
-        return $map;
+        if (!$autocenter) {
+            $map_details['zoom'] = intval(get_post_meta($map_id, 'map_zoom', 1));
+            $map_details['lat'] = floatval(get_post_meta($map_id, 'map_lat_lng__lat', 1));
+            $map_details['lng'] = floatval(get_post_meta($map_id, 'map_lat_lng__lng', 1));
+        }
+        $map_details['style'] = get_post_meta($map_id, 'map_style', 1);
+
+        return $map_details;
     }
 
     public function display_map($atts) {
@@ -396,17 +439,17 @@ class WPUMaps {
         $map_details = array();
         $markers = array();
 
-        if(isset($atts['id']) && !empty($atts['id'])){
+        if (isset($atts['id']) && !empty($atts['id'])) {
             $map_details = $this->get_map_details($atts['id']);
             $markers = $this->get_markers_from_map(array('map_id' => $atts['id']));
         }
 
-        if(isset($atts['categories']) && !empty($atts['categories'])){
+        if (isset($atts['categories']) && !empty($atts['categories'])) {
             $markers = $this->get_markers_from_map(array(
                 'categories' => explode(',', $atts['categories'])
             ));
         }
-        if(isset($atts['marker_id']) && !empty($atts['marker_id'])){
+        if (isset($atts['marker_id']) && !empty($atts['marker_id'])) {
             $markers = $this->get_markers_from_map(array('marker_id' => $atts['marker_id']));
         }
 

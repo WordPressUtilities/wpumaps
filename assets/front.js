@@ -65,10 +65,17 @@ function wpumaps_load_map(_map) {
         _map.map_details.lng = (min_lng + max_lng) / 2;
     }
 
+    /* Style */
+    var _style = '';
+    if (_map.map_details.style && _map.map_details.style.length) {
+        _style = _map.map_details.style;
+    }
+
     /* Load map */
     var map = new mapboxgl.Map({
         container: $map_target,
         zoom: _map.map_details.zoom,
+        style: 'mapbox://styles/mapbox/' + (_style.length ? _style : 'streets-v11'),
         center: [_map.map_details.lng, _map.map_details.lat]
     });
 
