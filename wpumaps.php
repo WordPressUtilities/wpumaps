@@ -496,7 +496,7 @@ class WPUMaps {
         add_meta_box(
             'wpumaps_map_preview',
             __('Preview', 'wpumaps'),
-            public function ($post) {
+            function ($post) {
                 $preview_url = add_query_arg(array(
                     'wpumaps_preview_map' => $post->ID
                 ), home_url('/'));
