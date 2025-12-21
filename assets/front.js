@@ -90,10 +90,15 @@ function wpumaps_load_map(_map) {
             _map.markers.forEach(function(marker) {
                 bounds.extend([marker.lng, marker.lat]);
             });
-            map.fitBounds(bounds, {
-                padding: 60,
-                duration: 0
-            });
+            function fitBounds() {
+                map.fitBounds(bounds, {
+                    padding: 60,
+                    duration: 0
+                });
+            }
+            fitBounds();
+            window.addEventListener('resize', fitBounds);
+
         } else {
             map.setZoom(14);
         }
