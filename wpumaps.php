@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.5.2
+Version: 0.5.3
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.5.2';
+    private $plugin_version = '0.5.3';
     private $plugin_settings = array(
         'id' => 'wpumaps',
         'name' => 'WPU Maps'
@@ -219,7 +219,8 @@ class WPUMaps {
         );
         $this->settings = array(
             'mapbox_key' => array(
-                'label' => __('Mapbox Key', 'wpumaps')
+                'label' => __('Mapbox Key', 'wpumaps'),
+                'help' => '<span class="wpumaps-mapbox-key-help"></span>'
             )
         );
         require_once __DIR__ . '/inc/WPUBaseSettings/WPUBaseSettings.php';
@@ -338,6 +339,8 @@ class WPUMaps {
         wp_register_script('wpumaps_back_script', plugins_url('assets/back.js', __FILE__), array(), $this->plugin_version, true);
         wp_localize_script('wpumaps_back_script', 'wpumaps_admin_settings', array(
             'mapbox_version' => $this->mapbox_version,
+            'mapbox_key_help_empty_text' => __('If you do not have a Mapbox key, you can get one for free at https://www.mapbox.com/', 'wpumaps'),
+            'mapbox_key_help_filled_text' => __('Test this API Key : <button>test</button>', 'wpumaps'),
             'mapbox_autofill_version' => $this->mapbox_autofill_version,
             'mapbox_key' => $this->get_mapbox_key()
         ));

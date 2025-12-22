@@ -1,3 +1,49 @@
+/* ----------------------------------------------------------
+  Dynamic Help Text for Mapbox Key Field
+---------------------------------------------------------- */
+
+document.addEventListener("DOMContentLoaded", function() {
+    'use strict';
+    var help_container = document.querySelector('.wpumaps-mapbox-key-help');
+    if (!help_container) {
+        return;
+    }
+    var $input = document.getElementById('mapbox_key');
+
+    function update_help_text() {
+        if ($input.value.trim() === '') {
+            help_container.innerHTML = wpumaps_admin_settings.mapbox_key_help_empty_text;
+        } else {
+            help_container.innerHTML = wpumaps_admin_settings.mapbox_key_help_filled_text;
+        }
+    }
+    update_help_text();
+    $input.addEventListener('input', update_help_text);
+
+    /* Click on button */
+    help_container.addEventListener('click', function(event) {
+        if (event.target.tagName.toLowerCase() !== 'button') {
+            return;
+        }
+        var $btn = event.target;
+        event.preventDefault();
+        $btn.innerText = '⏳ Testing...';
+        var test_url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/Paris.json?access_token=' + encodeURIComponent($input.value.trim());
+        fetch(test_url).then(function(response) {
+            if (response.ok) {
+                $btn.innerText = '✅ Valid';
+            } else {
+                $btn.innerText = '❌ Invalid';
+            }
+        });
+    });
+
+});
+
+/* ----------------------------------------------------------
+  Autofill Address with Mapbox Search JS
+---------------------------------------------------------- */
+
 document.addEventListener('DOMContentLoaded', function() {
     'use strict';
     var $fields = document.querySelectorAll('#wpubasefields_marker_lat_lng__address, #wpubasefields_map_lat_lng__address');

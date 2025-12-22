@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU Maps\n"
-"POT-Creation-Date: 2025-12-20 23:20+0100\n"
+"POT-Creation-Date: 2025-12-22 22:14+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -166,7 +166,7 @@ msgstr "Niveau de zoom"
 msgid "Map style"
 msgstr "Style de Carte"
 
-#: .././wpumaps.php:164 .././wpumaps.php:278
+#: .././wpumaps.php:164 .././wpumaps.php:279
 msgid "Marker Categories"
 msgstr "Catégories de marqueur"
 
@@ -198,87 +198,99 @@ msgstr "Mapbox"
 msgid "Mapbox Key"
 msgstr "Clé Mapbox"
 
-#: .././wpumaps.php:239
+#: .././wpumaps.php:240
 msgid "Maps"
 msgstr "Cartes"
 
-#: .././wpumaps.php:243
+#: .././wpumaps.php:244
 msgid "All Maps"
 msgstr "Toutes les cartes"
 
-#: .././wpumaps.php:244
+#: .././wpumaps.php:245
 msgid "Add New Map"
 msgstr "Ajouter une nouvelle carte"
 
-#: .././wpumaps.php:245
+#: .././wpumaps.php:246
 msgid "Edit Map"
 msgstr "Modifier la carte"
 
-#: .././wpumaps.php:246
+#: .././wpumaps.php:247
 msgid "New Map"
 msgstr "Nouvelle carte"
 
-#: .././wpumaps.php:247
+#: .././wpumaps.php:248
 msgid "View Map"
 msgstr "Voir la carte"
 
-#: .././wpumaps.php:248
+#: .././wpumaps.php:249
 msgid "Search Maps"
 msgstr "Rechercher des cartes"
 
-#: .././wpumaps.php:249
+#: .././wpumaps.php:250
 msgid "No maps found"
 msgstr "Aucune carte trouvée"
 
-#: .././wpumaps.php:250
+#: .././wpumaps.php:251
 msgid "No maps found in Trash"
 msgstr "Aucune carte trouvée dans la corbeille"
 
-#: .././wpumaps.php:262 .././wpumaps.php:293 .././wpumaps.php:294
+#: .././wpumaps.php:263 .././wpumaps.php:294 .././wpumaps.php:295
 msgid "Markers"
 msgstr "Marqueurs"
 
-#: .././wpumaps.php:266
+#: .././wpumaps.php:267
 msgid "All Markers"
 msgstr "Tous les marqueurs"
 
-#: .././wpumaps.php:267
+#: .././wpumaps.php:268
 msgid "Add New Marker"
 msgstr "Ajouter un nouveau marqueur"
 
-#: .././wpumaps.php:268
+#: .././wpumaps.php:269
 msgid "Edit Marker"
 msgstr "Editer marqueur"
 
-#: .././wpumaps.php:269
+#: .././wpumaps.php:270
 msgid "New Marker"
 msgstr "Nouveau marqueur"
 
-#: .././wpumaps.php:270
+#: .././wpumaps.php:271
 msgid "View Marker"
 msgstr "Voir le marqueur"
 
-#: .././wpumaps.php:271
+#: .././wpumaps.php:272
 msgid "Search Markers"
 msgstr "Rechercher des marqueurs"
 
-#: .././wpumaps.php:272
+#: .././wpumaps.php:273
 msgid "No markers found"
 msgstr "Aucun marqueur trouvé"
 
-#: .././wpumaps.php:273
+#: .././wpumaps.php:274
 msgid "No markers found in Trash"
 msgstr "Aucun marqueur trouvé dans la corbeille"
 
-#: .././wpumaps.php:302 .././wpumaps.php:303
+#: .././wpumaps.php:303 .././wpumaps.php:304
 msgid "Categories"
 msgstr "Catégories"
 
-#: .././wpumaps.php:489
+#: .././wpumaps.php:342
+msgid ""
+"If you do not have a Mapbox key, you can get one for free at https://"
+"www.mapbox.com/"
+msgstr ""
+"Si vous n’avez pas de clé Mapbox, vous pouvez en obtenir une gratuitement "
+"sur https://www.mapbox.com/"
+
+#: .././wpumaps.php:343
+msgid "Test this API Key : <button>test</button>"
+msgstr "Testez cette clé API : <button>Test</button>"
+
+#: .././wpumaps.php:501
 msgid "Preview"
 msgstr "Aperçu"
 
-#: .././wpumaps.php:494
+#: .././wpumaps.php:506
 msgid "Preview saved map"
 msgstr "Prévisualiser la carte sauvegardée"
 
