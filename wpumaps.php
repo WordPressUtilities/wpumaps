@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.5.3
+Version: 0.6.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.5.3';
+    private $plugin_version = '0.6.0';
     private $plugin_settings = array(
         'id' => 'wpumaps',
         'name' => 'WPU Maps'
@@ -31,7 +31,10 @@ class WPUMaps {
     private $settings;
     private $settings_obj;
     private $settings_details;
-    private $mapbox_version = 'v3.17.0-beta.1';
+
+    # https://docs.mapbox.com/mapbox-gl-js/guides/install/#import-or-install-mapbox-gl-js
+    private $mapbox_version = 'v3.17.0';
+    # https://docs.mapbox.com/mapbox-search-js/guides/autofill/web/#installation-when-using-the-mapbox-cdn
     private $mapbox_autofill_version = 'v1.5.0';
     private $plugin_description;
 
@@ -190,12 +193,16 @@ class WPUMaps {
             'type' => 'image',
             'group' => 'markers'
         );
+        $fields['marker_popup_image'] = array(
+            'label' => __('Image', 'wpumaps'),
+            'type' => 'image',
+            'group' => 'markers_popup'
+        );
         $fields['marker_popup_content'] = array(
-            'label' => __('Popup Content', 'wpumaps'),
+            'label' => __('Content', 'wpumaps'),
             'type' => 'textarea',
             'group' => 'markers_popup'
         );
-
         require_once __DIR__ . '/inc/WPUBaseFields/WPUBaseFields.php';
         $this->basefields = new \wpumaps\WPUBaseFields($fields, $field_groups);
     }
@@ -217,10 +224,12 @@ class WPUMaps {
                 )
             )
         );
+        $has_api_key = defined('WPUMAPS_MAPBOX_KEY') && !empty(WPUMAPS_MAPBOX_KEY);
         $this->settings = array(
             'mapbox_key' => array(
                 'label' => __('Mapbox Key', 'wpumaps'),
-                'help' => '<span class="wpumaps-mapbox-key-help"></span>'
+                'readonly' => $has_api_key,
+                'help' => $has_api_key ? __('This key is defined in wp-config.php and cannot be changed here.', 'wpumaps') : '<span class="wpumaps-mapbox-key-help"></span>'
             )
         );
         require_once __DIR__ . '/inc/WPUBaseSettings/WPUBaseSettings.php';
@@ -404,10 +413,23 @@ class WPUMaps {
     }
 
     public function get_marker($marker) {
+        /* Popup */
+        $popup_content_image = '';
+        $popup_image_id = get_post_meta($marker->ID, 'marker_popup_image', 1);
+        if ($popup_image_id) {
+            $popup_content_image =  wp_get_attachment_image_url($popup_image_id, 'medium');
+        }
+
+        $popup_content_html = '';
         $popup_content = get_post_meta($marker->ID, 'marker_popup_content', 1);
         if ($popup_content) {
             $popup_content = trim(esc_html($popup_content));
+            if ($popup_content) {
+                $popup_content_html =  wpautop($popup_content);
+            }
         }
+
+        /* Icon */
         $marker_icon_id = get_post_meta($marker->ID, 'marker_icon', 1);
         $marker_icon_url = '';
         if ($marker_icon_id) {
@@ -417,9 +439,17 @@ class WPUMaps {
             'name' => get_the_title($marker),
             'lat' => (get_post_meta($marker->ID, 'marker_lat_lng__lat', 1)),
             'lng' => (get_post_meta($marker->ID, 'marker_lat_lng__lng', 1)),
-            'icon_url' => $marker_icon_url,
-            'popup_content' => $popup_content
         );
+        if($marker_icon_url){
+            $marker_data['icon_url'] = $marker_icon_url;
+        }
+        if($popup_content_html){
+            $marker_data['popup_content_html'] = $popup_content_html;
+        }
+        if($popup_content_image){
+            $marker_data['popup_content_image'] = $popup_content_image;
+        }
+
         return $marker_data;
     }
 

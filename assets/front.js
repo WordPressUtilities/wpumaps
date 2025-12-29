@@ -90,6 +90,7 @@ function wpumaps_load_map(_map) {
             _map.markers.forEach(function(marker) {
                 bounds.extend([marker.lng, marker.lat]);
             });
+
             function fitBounds() {
                 map.fitBounds(bounds, {
                     padding: 60,
@@ -107,6 +108,8 @@ function wpumaps_load_map(_map) {
     /* Add markers */
     _map.markers.forEach(function(marker) {
 
+        var _marker_height = 32;
+
         var _marker_params = {};
         if (marker.icon_url) {
             var _icon_el = document.createElement('div');
@@ -116,7 +119,7 @@ function wpumaps_load_map(_map) {
             _marker_params.element = _icon_el;
             _marker_params.offset = {
                 x: 0,
-                y: -16
+                y: -_marker_height / 2
             };
 
         }
@@ -125,9 +128,28 @@ function wpumaps_load_map(_map) {
             .setLngLat([marker.lng, marker.lat])
             .addTo(map);
 
-        if (marker.popup_content && marker.popup_content.length) {
-            var popup = new mapboxgl.Popup()
-                .setHTML(marker.popup_content);
+        var _popup_content = '';
+
+        if (marker.popup_content_image) {
+            _popup_content += '<div class="wpumaps-marker-popup-image"><img src="' + marker.popup_content_image + '" alt="" /></div>';
+        }
+        if (marker.popup_content_html && marker.popup_content_html.length) {
+            _popup_content += '<div class="wpumaps-marker-popup-content">' + marker.popup_content_html + '</div>';
+        }
+
+        if (_popup_content) {
+            var _popup_settings = {
+                className: 'wpumaps-marker-popup',
+                focusAfterOpen: false
+            };
+            if (marker.icon_url) {
+                _popup_settings.offset = {
+                    'top': [0, 0],
+                    'bottom': [0, -_marker_height],
+                };
+            }
+            var popup = new mapboxgl.Popup(_popup_settings)
+                .setHTML(_popup_content);
             _marker.setPopup(popup);
         }
 

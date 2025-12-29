@@ -32,3 +32,20 @@
 .wpumaps-preview-wrapper .wpumaps__wrapper .wpumaps__map {
     height: 100%;
 }
+
+/* ----------------------------------------------------------
+  Popup
+---------------------------------------------------------- */
+
+.wpumaps-marker-popup {
+    font-size: 14px;
+}
+
+.wpumaps-marker-popup-image:not(:last-child) {
+    margin-bottom: 0.5em;
+}
+
+.wpumaps-marker-popup-content,
+.wpumaps-marker-popup-content p {
+    font-size: inherit;
+}

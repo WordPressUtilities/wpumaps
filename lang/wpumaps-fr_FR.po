@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU Maps\n"
-"POT-Creation-Date: 2025-12-22 22:14+0100\n"
+"POT-Creation-Date: 2025-12-29 17:08+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -56,7 +56,7 @@ msgstr "Ce champ est invalide"
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:135
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:703
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:710 .././wpumaps.php:155
-#: .././wpumaps.php:209
+#: .././wpumaps.php:213
 msgid "Settings"
 msgstr "Réglages"
 
@@ -166,7 +166,7 @@ msgstr "Niveau de zoom"
 msgid "Map style"
 msgstr "Style de Carte"
 
-#: .././wpumaps.php:164 .././wpumaps.php:279
+#: .././wpumaps.php:164 .././wpumaps.php:284
 msgid "Marker Categories"
 msgstr "Catégories de marqueur"
 
@@ -187,94 +187,103 @@ msgid "Icon"
 msgstr "Icône"
 
 #: .././wpumaps.php:194
-msgid "Popup Content"
-msgstr "Contenu Popup"
+msgid "Image"
+msgstr "Image"
 
-#: .././wpumaps.php:216
+#: .././wpumaps.php:199
+msgid "Content"
+msgstr "Contenu"
+
+#: .././wpumaps.php:220
 msgid "Mapbox"
 msgstr "Mapbox"
 
-#: .././wpumaps.php:222
+#: .././wpumaps.php:226
 msgid "Mapbox Key"
 msgstr "Clé Mapbox"
 
-#: .././wpumaps.php:240
+#: .././wpumaps.php:228
+msgid "This key is defined in wp-config.php and cannot be changed here."
+msgstr ""
+"Cette clé est définie dans wp-config.php et ne peut pas être modifiée ici."
+
+#: .././wpumaps.php:245
 msgid "Maps"
 msgstr "Cartes"
 
-#: .././wpumaps.php:244
+#: .././wpumaps.php:249
 msgid "All Maps"
 msgstr "Toutes les cartes"
 
-#: .././wpumaps.php:245
+#: .././wpumaps.php:250
 msgid "Add New Map"
 msgstr "Ajouter une nouvelle carte"
 
-#: .././wpumaps.php:246
+#: .././wpumaps.php:251
 msgid "Edit Map"
 msgstr "Modifier la carte"
 
-#: .././wpumaps.php:247
+#: .././wpumaps.php:252
 msgid "New Map"
 msgstr "Nouvelle carte"
 
-#: .././wpumaps.php:248
+#: .././wpumaps.php:253
 msgid "View Map"
 msgstr "Voir la carte"
 
-#: .././wpumaps.php:249
+#: .././wpumaps.php:254
 msgid "Search Maps"
 msgstr "Rechercher des cartes"
 
-#: .././wpumaps.php:250
+#: .././wpumaps.php:255
 msgid "No maps found"
 msgstr "Aucune carte trouvée"
 
-#: .././wpumaps.php:251
+#: .././wpumaps.php:256
 msgid "No maps found in Trash"
 msgstr "Aucune carte trouvée dans la corbeille"
 
-#: .././wpumaps.php:263 .././wpumaps.php:294 .././wpumaps.php:295
+#: .././wpumaps.php:268 .././wpumaps.php:299 .././wpumaps.php:300
 msgid "Markers"
 msgstr "Marqueurs"
 
-#: .././wpumaps.php:267
+#: .././wpumaps.php:272
 msgid "All Markers"
 msgstr "Tous les marqueurs"
 
-#: .././wpumaps.php:268
+#: .././wpumaps.php:273
 msgid "Add New Marker"
 msgstr "Ajouter un nouveau marqueur"
 
-#: .././wpumaps.php:269
+#: .././wpumaps.php:274
 msgid "Edit Marker"
 msgstr "Editer marqueur"
 
-#: .././wpumaps.php:270
+#: .././wpumaps.php:275
 msgid "New Marker"
 msgstr "Nouveau marqueur"
 
-#: .././wpumaps.php:271
+#: .././wpumaps.php:276
 msgid "View Marker"
 msgstr "Voir le marqueur"
 
-#: .././wpumaps.php:272
+#: .././wpumaps.php:277
 msgid "Search Markers"
 msgstr "Rechercher des marqueurs"
 
-#: .././wpumaps.php:273
+#: .././wpumaps.php:278
 msgid "No markers found"
 msgstr "Aucun marqueur trouvé"
 
-#: .././wpumaps.php:274
+#: .././wpumaps.php:279
 msgid "No markers found in Trash"
 msgstr "Aucun marqueur trouvé dans la corbeille"
 
-#: .././wpumaps.php:303 .././wpumaps.php:304
+#: .././wpumaps.php:308 .././wpumaps.php:309
 msgid "Categories"
 msgstr "Catégories"
 
-#: .././wpumaps.php:342
+#: .././wpumaps.php:347
 msgid ""
 "If you do not have a Mapbox key, you can get one for free at https://"
 "www.mapbox.com/"
@@ -282,15 +291,15 @@ msgstr ""
 "Si vous n’avez pas de clé Mapbox, vous pouvez en obtenir une gratuitement "
 "sur https://www.mapbox.com/"
 
-#: .././wpumaps.php:343
+#: .././wpumaps.php:348
 msgid "Test this API Key : <button>test</button>"
 msgstr "Testez cette clé API : <button>Test</button>"
 
-#: .././wpumaps.php:501
+#: .././wpumaps.php:517
 msgid "Preview"
 msgstr "Aperçu"
 
-#: .././wpumaps.php:506
+#: .././wpumaps.php:522
 msgid "Preview saved map"
 msgstr "Prévisualiser la carte sauvegardée"
 
