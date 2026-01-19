@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.6.0
+Version: 0.7.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,25 +21,27 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.6.0';
+    private $plugin_version = '0.7.0';
     private $plugin_settings = array(
         'id' => 'wpumaps',
         'name' => 'WPU Maps'
     );
     private $basetoolbox;
     private $basefields;
+    private $basefilecache;
     private $settings;
     private $settings_obj;
     private $settings_details;
 
     # https://docs.mapbox.com/mapbox-gl-js/guides/install/#import-or-install-mapbox-gl-js
-    private $mapbox_version = 'v3.17.0';
+    private $mapbox_version = 'v3.18.0';
     # https://docs.mapbox.com/mapbox-search-js/guides/autofill/web/#installation-when-using-the-mapbox-cdn
     private $mapbox_autofill_version = 'v1.5.0';
     private $plugin_description;
 
     public function __construct() {
         add_action('init', array(&$this, 'register_entities'));
+        add_action('init', array(&$this, 'load_filecache'));
         add_action('init', array(&$this, 'load_toolbox'));
         add_action('init', array(&$this, 'load_fields'));
         add_action('init', array(&$this, 'load_settings'));
@@ -52,6 +54,11 @@ class WPUMaps {
         add_action('admin_head-edit-tags.php', array($this, 'admin_head'));
         add_action('admin_head-term.php', array($this, 'admin_head'));
 
+        /* Cache */
+        add_action('save_post_maps', array(&$this, 'save_post_maps'), 999, 3);
+        add_action('save_post_map_markers', array(&$this, 'generate_cache'), 999, 3);
+        add_action('saved_marker_categories', array(&$this, 'generate_cache'), 999, 3);
+
         /* Assets */
         add_action('admin_enqueue_scripts', array(&$this, 'admin_enqueue_scripts'));
         add_action('wp_enqueue_scripts', array(&$this, 'wp_enqueue_scripts'));
@@ -62,6 +69,11 @@ class WPUMaps {
         /* Preview */
         add_action('add_meta_boxes', array($this, 'add_map_metabox'));
         add_action('template_redirect', array($this, 'preview_map'));
+    }
+
+    public function load_filecache() {
+        require_once __DIR__ . '/inc/WPUBaseFileCache/WPUBaseFileCache.php';
+        $this->basefilecache = new \wpumaps\WPUBaseFileCache('wpumaps');
     }
 
     public function load_toolbox() {
@@ -417,7 +429,7 @@ class WPUMaps {
         $popup_content_image = '';
         $popup_image_id = get_post_meta($marker->ID, 'marker_popup_image', 1);
         if ($popup_image_id) {
-            $popup_content_image =  wp_get_attachment_image_url($popup_image_id, 'medium');
+            $popup_content_image = wp_get_attachment_image_url($popup_image_id, 'medium');
         }
 
         $popup_content_html = '';
@@ -425,7 +437,7 @@ class WPUMaps {
         if ($popup_content) {
             $popup_content = trim(esc_html($popup_content));
             if ($popup_content) {
-                $popup_content_html =  wpautop($popup_content);
+                $popup_content_html = wpautop($popup_content);
             }
         }
 
@@ -438,15 +450,15 @@ class WPUMaps {
         $marker_data = array(
             'name' => get_the_title($marker),
             'lat' => (get_post_meta($marker->ID, 'marker_lat_lng__lat', 1)),
-            'lng' => (get_post_meta($marker->ID, 'marker_lat_lng__lng', 1)),
+            'lng' => (get_post_meta($marker->ID, 'marker_lat_lng__lng', 1))
         );
-        if($marker_icon_url){
+        if ($marker_icon_url) {
             $marker_data['icon_url'] = $marker_icon_url;
         }
-        if($popup_content_html){
+        if ($popup_content_html) {
             $marker_data['popup_content_html'] = $popup_content_html;
         }
-        if($popup_content_image){
+        if ($popup_content_image) {
             $marker_data['popup_content_image'] = $popup_content_image;
         }
 
@@ -470,7 +482,7 @@ class WPUMaps {
         return $map_details;
     }
 
-    public function display_map($atts) {
+    public function get_map_data($atts) {
         $map_id = 'map_' . md5(json_encode($atts));
 
         $map_details = array();
@@ -499,11 +511,29 @@ class WPUMaps {
             return '';
         }
 
-        $map_data = array(
+        return array(
             'map_id' => $map_id,
             'map_details' => $map_details,
             'markers' => $markers
         );
+    }
+
+    public function display_map($atts) {
+        $map_data = false;
+        if (isset($atts['file']) && is_readable($atts['file'])) {
+            $validated_file_path = $this->validate_map_file_path($atts['file']);
+            if ($validated_file_path) {
+                $map_data = unserialize(file_get_contents($validated_file_path));
+            }
+        }
+
+        if (!is_array($map_data)) {
+            $map_data = $this->get_map_data($atts);
+        }
+
+        if (!$map_data) {
+            return '';
+        }
 
         add_action('wp_footer', function () use ($map_data) {
             echo '<script class="wpumaps__data">';
@@ -513,11 +543,69 @@ class WPUMaps {
         });
 
         /* Wrapper */
-        $html = '<div class="wpumaps__wrapper" data-wpumaps="' . esc_attr($map_id) . '">';
+        $html = '<div class="wpumaps__wrapper" data-wpumaps="' . esc_attr($map_data['map_id']) . '">';
         $html .= '<div class="wpumaps__map"></div>';
         $html .= '</div>';
 
         return $html;
+
+    }
+
+    /* ----------------------------------------------------------
+      Cache
+    ---------------------------------------------------------- */
+
+    /**
+     * Ensure that a file path is valid and allowed
+     */
+    public function validate_map_file_path($file_path) {
+
+        /* File should exists */
+        $file_path = realpath($file_path);
+        if ($file_path === false || !is_readable($file_path)) {
+            return false;
+        }
+
+        /* File should be in cache dir */
+        $real_base = realpath(WP_CONTENT_DIR . '/cache/');
+        if (!str_starts_with($file_path, $real_base)) {
+            return false;
+        }
+
+        /* File should be in a valid dir */
+        $relative_file_path = str_replace($real_base, '', realpath($file_path));
+        if (!preg_match('#^/wpumaps/map_([0-9]+)$#', $relative_file_path) && !preg_match('#^/site_([0-9]+)/wpumaps/map_([0-9]+)$#', $relative_file_path)) {
+            return false;
+        }
+
+        if (strpos($relative_file_path, '.') !== false || strpos($relative_file_path, 'wpumaps/map_') === false) {
+            return false;
+        }
+
+        return $file_path;
+
+    }
+
+    /* Create cache */
+
+    public function save_post_maps($post_ID, $post, $update) {
+        $this->generate_cache(array($post_ID));
+    }
+
+    public function generate_cache($cache_to_generate) {
+        if (empty($cache_to_generate) || !is_array($cache_to_generate)) {
+            $cache_to_generate = get_posts(array(
+                'post_type' => 'maps',
+                'posts_per_page' => -1,
+                'fields' => 'ids'
+            ));
+        }
+
+        foreach ($cache_to_generate as $map_id) {
+            // Trigger cache generation
+            $data = $this->get_map_data(array('id' => $map_id));
+            $this->basefilecache->set_cache('map_' . $map_id, $data);
+        }
 
     }
 
