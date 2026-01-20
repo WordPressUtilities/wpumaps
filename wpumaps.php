@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.7.0
+Version: 0.7.1
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.7.0';
+    private $plugin_version = '0.7.1';
     private $plugin_settings = array(
         'id' => 'wpumaps',
         'name' => 'WPU Maps'
@@ -490,6 +490,11 @@ class WPUMaps {
         $map_init = false;
 
         if (isset($atts['id']) && !empty($atts['id'])) {
+            $data = $this->basefilecache->get_cache('map_' . $atts['id'], 0);
+            if ($data) {
+                return $data;
+            }
+
             $map_details = $this->get_map_details($atts['id']);
             $markers = $this->get_markers_from_map(array('map_id' => $atts['id']));
             $map_init = true;
@@ -573,7 +578,7 @@ class WPUMaps {
         }
 
         /* File should be in a valid dir */
-        $relative_file_path = str_replace($real_base, '', realpath($file_path));
+        $relative_file_path = str_replace($real_base, '', $file_path);
         if (!preg_match('#^/wpumaps/map_([0-9]+)$#', $relative_file_path) && !preg_match('#^/site_([0-9]+)/wpumaps/map_([0-9]+)$#', $relative_file_path)) {
             return false;
         }

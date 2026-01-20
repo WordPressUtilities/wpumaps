@@ -99,9 +99,13 @@ function wpumaps_load_map(_map) {
             }
             fitBounds();
             window.addEventListener('resize', fitBounds);
-
         } else {
-            map.setZoom(14);
+            map.flyTo({
+                center: [parseFloat(_map.markers[0].lng, 10), parseFloat(_map.markers[0].lat, 10)],
+                essential: true,
+                duration: 0,
+                zoom: 14
+            });
         }
     }
 
