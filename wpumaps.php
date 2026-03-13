@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.8.0
+Version: 0.8.1
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.8.0';
+    private $plugin_version = '0.8.1';
     private $plugin_settings = array(
         'id' => 'wpumaps',
         'name' => 'WPU Maps'
@@ -425,6 +425,9 @@ class WPUMaps {
         if (isset($args['marker_id'])) {
             $q['post__in'] = array($args['marker_id']);
         }
+        if(!is_array($selected_categories)){
+            $selected_categories = array();
+        }
         if (!empty($selected_categories)) {
             $selected_categories = array_map('intval', $selected_categories);
             $q['tax_query'] = array(
@@ -546,7 +549,6 @@ class WPUMaps {
             if ($data && (!isset($atts['nocache']) || !$atts['nocache'])) {
                 return $data;
             }
-
             $map_details = $this->get_map_details($atts['id']);
             $markers = $this->get_markers_from_map(array('map_id' => $atts['id']));
             $map_init = true;
@@ -681,6 +683,13 @@ class WPUMaps {
     ---------------------------------------------------------- */
 
     public function add_map_metabox() {
+        $current_screen = get_current_screen();
+        if (!$current_screen || !in_array($current_screen->post_type, array('maps'))) {
+            return;
+        }
+        if (isset($current_screen->action) && $current_screen->action == 'add') {
+            return;
+        }
         add_meta_box(
             'wpumaps_map_preview',
             __('Preview', 'wpumaps'),
