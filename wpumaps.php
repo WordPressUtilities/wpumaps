@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.8.1
+Version: 0.9.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.8.1';
+    private $plugin_version = '0.9.0';
     private $plugin_settings = array(
         'id' => 'wpumaps',
         'name' => 'WPU Maps'
@@ -53,6 +53,10 @@ class WPUMaps {
         add_action('admin_head-edit.php', array($this, 'admin_head'));
         add_action('admin_head-edit-tags.php', array($this, 'admin_head'));
         add_action('admin_head-term.php', array($this, 'admin_head'));
+
+        /* Security */
+        add_filter('wp_insert_post_data', array(&$this, 'wp_insert_post_data__map_markers'), 10, 2);
+        add_action('admin_notices', array(&$this, 'admin_notices__map_markers'));
 
         /* Cache */
         add_action('save_post', array(&$this, 'save_post_maps'), 999, 3);
@@ -425,7 +429,7 @@ class WPUMaps {
         if (isset($args['marker_id'])) {
             $q['post__in'] = array($args['marker_id']);
         }
-        if(!is_array($selected_categories)){
+        if (!is_array($selected_categories)) {
             $selected_categories = array();
         }
         if (!empty($selected_categories)) {
@@ -676,6 +680,47 @@ class WPUMaps {
             $this->basefilecache->set_cache('map_' . $map_id, $data);
         }
 
+    }
+
+    /* ----------------------------------------------------------
+      Validate markers
+    ---------------------------------------------------------- */
+
+    /* Prevent publishing a marker if it doesn't have valid coordinates */
+    public function wp_insert_post_data__map_markers($data, $postarr) {
+        if (!isset($postarr['post_type']) || $postarr['post_type'] != 'map_markers' || $data['post_status'] != 'publish' || !is_numeric($postarr['ID'])) {
+            return $data;
+        }
+
+        $lng = isset($postarr['ID']) ? get_post_meta($postarr['ID'], 'marker_lat_lng__lng', true) : '';
+        $lat = isset($postarr['ID']) ? get_post_meta($postarr['ID'], 'marker_lat_lng__lat', true) : '';
+
+        if (isset($_POST['wpubasefields_marker_lat_lng__lng'])) {
+            $lng = $_POST['wpubasefields_marker_lat_lng__lng'];
+        }
+        if (isset($_POST['wpubasefields_marker_lat_lng__lat'])) {
+            $lat = $_POST['wpubasefields_marker_lat_lng__lat'];
+        }
+
+        if (empty($lng) || empty($lat)) {
+            $data['post_status'] = 'draft';
+            set_transient('wpumaps_missing_lng_notice_' . $postarr['ID'], true, 60);
+        }
+
+        return $data;
+    }
+
+    /* Notice if a marker could not be published */
+    public function admin_notices__map_markers() {
+        global $pagenow, $post;
+        if ($pagenow != 'post.php' || !isset($post) || $post->post_type != 'map_markers' || $post->post_status != 'draft') {
+            return;
+        }
+        $transient_key = 'wpumaps_missing_lng_notice_' . $post->ID;
+        if (get_transient($transient_key)) {
+            delete_transient($transient_key);
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Marker could not be published because coordinates are invalid.', 'wpumaps') . '</p></div>';
+        }
     }
 
     /* ----------------------------------------------------------

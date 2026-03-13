@@ -1,2 +1,11 @@
 @charset "UTF-8";
 
+mapbox-search-box input[name="wpubasefields_map_lat_lng__address"],
+mapbox-search-box input[name="wpubasefields_marker_lat_lng__address"] {
+    margin-top: 1em;
+}
+
+.wpubasefield-input mapbox-search-box [role="combobox"] {
+    padding: 0 40px!important;
+    border: 0!important;
+}

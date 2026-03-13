@@ -62,8 +62,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function wpumaps_setup_autofill($fields) {
     'use strict';
-    const autofillElement = new mapboxsearch.MapboxAddressAutofill()
-    autofillElement.accessToken = wpumaps_admin_settings.mapbox_key;
 
     $fields.forEach(function($field) {
 
@@ -72,9 +70,16 @@ function wpumaps_setup_autofill($fields) {
             $parent = $field.parentElement,
             $wrapper = $field.closest('[data-group]');
 
-        /* Move the field into the autofill element */
-        autofillElement.appendChild($field);
-        $parent.appendChild(autofillElement);
+        /* MapboxSearchBox supports all feature types (streets without numbers, lieux-dits, POI…) */
+        var searchBox = new mapboxsearch.MapboxSearchBox();
+
+        /* Insert into DOM first so the component can render its internals */
+        $parent.insertBefore(searchBox, $field);
+        searchBox.accessToken = wpumaps_admin_settings.mapbox_key;
+        searchBox.options = { types: 'address,street,place,poi,locality,neighborhood' };
+
+        /* Then move the field inside the search box */
+        searchBox.appendChild($field);
 
         setTimeout(function() {
             $field.setAttribute('name', _field_name);
@@ -83,14 +88,33 @@ function wpumaps_setup_autofill($fields) {
         var $lat = $wrapper.querySelector('input[type="number"][name*="__lat"]'),
             $lng = $wrapper.querySelector('input[type="number"][name*="__lng"]');
 
-        autofillElement.addEventListener('retrieve', function(event) {
-            /* When an address is selected : fill lat/lng fields */
-            $lat.value = event.detail.features[0].geometry.coordinates[1];
-            $lng.value = event.detail.features[0].geometry.coordinates[0];
-            /* Save full address */
+        searchBox.addEventListener('retrieve', function(event) {
+            var feature = event.detail.features[0];
+
+            /* Extract coordinates — Point or bbox center fallback */
+            var coords = null;
+            if (feature.geometry && feature.geometry.type === 'Point') {
+                coords = feature.geometry.coordinates;
+            } else if (feature.properties.coordinates) {
+                coords = [feature.properties.coordinates.longitude, feature.properties.coordinates.latitude];
+            } else if (feature.properties.bbox) {
+                var bbox = feature.properties.bbox;
+                coords = [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2];
+            }
+
+            if (coords) {
+                $lat.value = coords[1];
+                $lng.value = coords[0];
+            }
+
+            /* Save label — full_address for addresses, name/place_name for streets & features */
+            var label = feature.properties.full_address
+                || feature.properties.place_name
+                || feature.properties.name
+                || '';
             setTimeout(function() {
                 $field.setAttribute('name', _field_name);
-                $field.value = event.detail.features[0].properties.full_address;
+                $field.value = label;
             }, 100);
         });
     });
