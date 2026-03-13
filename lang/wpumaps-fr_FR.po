@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU Maps\n"
-"POT-Creation-Date: 2025-12-29 17:08+0100\n"
+"POT-Creation-Date: 2026-03-13 13:52+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -25,38 +25,38 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-8: inc/WPUBaseToolbox\n"
 "X-Poedit-SearchPathExcluded-9: inc/WPUBaseUpdate\n"
 
-#: .././inc/WPUBaseFields/WPUBaseFields.php:167
+#: .././inc/WPUBaseFields/WPUBaseFields.php:181
 msgid "Select a value"
 msgstr "Sélectionnez une valeur"
 
-#: .././inc/WPUBaseFields/WPUBaseFields.php:254
+#: .././inc/WPUBaseFields/WPUBaseFields.php:287
 msgid "Required"
 msgstr "Requis"
 
-#: .././inc/WPUBaseFields/WPUBaseFields.php:318
+#: .././inc/WPUBaseFields/WPUBaseFields.php:351
 msgid "Select a file"
 msgstr "Sélectionner un fichier"
 
-#: .././inc/WPUBaseFields/WPUBaseFields.php:319
+#: .././inc/WPUBaseFields/WPUBaseFields.php:352
 msgid "Remove file"
 msgstr "Retirer le fichier"
 
-#: .././inc/WPUBaseFields/WPUBaseFields.php:321
+#: .././inc/WPUBaseFields/WPUBaseFields.php:354
 msgid "Select an image"
 msgstr "Sélectionner une image"
 
-#: .././inc/WPUBaseFields/WPUBaseFields.php:322
+#: .././inc/WPUBaseFields/WPUBaseFields.php:355
 msgid "Remove image"
 msgstr "Retirer l’image"
 
-#: .././inc/WPUBaseFields/WPUBaseFields.php:367
+#: .././inc/WPUBaseFields/WPUBaseFields.php:400
 msgid "This field is invalid"
 msgstr "Ce champ est invalide"
 
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:135
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:703
-#: .././inc/WPUBaseSettings/WPUBaseSettings.php:710 .././wpumaps.php:155
-#: .././wpumaps.php:213
+#: .././inc/WPUBaseSettings/WPUBaseSettings.php:710 .././wpumaps.php:170
+#: .././wpumaps.php:194 .././wpumaps.php:241
 msgid "Settings"
 msgstr "Réglages"
 
@@ -116,7 +116,7 @@ msgstr "Le champ « %s » est obligatoire"
 msgid "The field “%s” should be an email"
 msgstr "Le champ « %s » doit être un email"
 
-#: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:674
+#: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:706
 #, php-format
 msgid ""
 "The plugin <b>%s</b> depends on the following plugins. Please install and "
@@ -125,7 +125,7 @@ msgstr ""
 "Le plugin <b>%s</b> dépend des plugins suivants. Veuillez les installer et "
 "les activer :"
 
-#: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:680
+#: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:712
 #, php-format
 msgid ""
 "The plugin <b>%s</b> depends on the <b>%s</b> plugin. Please install and "
@@ -134,43 +134,47 @@ msgstr ""
 "Le plugin <b>%s</b> dépend du plugin <b>%s</b>. Merci de l’installer et de "
 "l’activer."
 
-#: .././wpumaps.php:76
+#: .././inc/WPUBaseToolbox/WPUBaseToolbox.php:758
+msgid "No data available."
+msgstr "Pas de données disponibles."
+
+#: .././wpumaps.php:91
 msgid "Address"
 msgstr "Adresse"
 
-#: .././wpumaps.php:80
+#: .././wpumaps.php:95
 msgid "Latitude"
 msgstr "Latitude"
 
-#: .././wpumaps.php:87
+#: .././wpumaps.php:102
 msgid "Longitude"
 msgstr "Longitude"
 
-#: .././wpumaps.php:102 .././wpumaps.php:175
+#: .././wpumaps.php:117 .././wpumaps.php:190
 msgid "Coordinates"
 msgstr "Coordonnées"
 
-#: .././wpumaps.php:106
+#: .././wpumaps.php:121
 msgid "Enable auto center"
 msgstr "Activer le centrage automatique"
 
-#: .././wpumaps.php:108
+#: .././wpumaps.php:123
 msgid "If enabled, the map will automatically center on the markers."
 msgstr "Si activé, la carte se centre automatiquement sur les marqueurs."
 
-#: .././wpumaps.php:112
+#: .././wpumaps.php:127
 msgid "Zoom level"
 msgstr "Niveau de zoom"
 
-#: .././wpumaps.php:134
+#: .././wpumaps.php:149
 msgid "Map style"
 msgstr "Style de Carte"
 
-#: .././wpumaps.php:164 .././wpumaps.php:284
+#: .././wpumaps.php:179 .././wpumaps.php:313
 msgid "Marker Categories"
 msgstr "Catégories de marqueur"
 
-#: .././wpumaps.php:167
+#: .././wpumaps.php:182
 msgid ""
 "Select the categories of markers to display on this map. If none selected, "
 "all categories will be displayed."
@@ -178,128 +182,140 @@ msgstr ""
 "Sélectionnez les catégories de marqueurs à afficher sur cette carte. Si "
 "aucune n’est sélectionnée, toutes les catégories seront affichées."
 
-#: .././wpumaps.php:179
+#: .././wpumaps.php:198
 msgid "Popup"
 msgstr "Popup"
 
-#: .././wpumaps.php:189
+#: .././wpumaps.php:208 .././wpumaps.php:213
 msgid "Icon"
 msgstr "Icône"
 
-#: .././wpumaps.php:194
+#: .././wpumaps.php:218
 msgid "Image"
 msgstr "Image"
 
-#: .././wpumaps.php:199
+#: .././wpumaps.php:223
+msgid "Title"
+msgstr "Titre"
+
+#: .././wpumaps.php:227
 msgid "Content"
 msgstr "Contenu"
 
-#: .././wpumaps.php:220
+#: .././wpumaps.php:248
 msgid "Mapbox"
 msgstr "Mapbox"
 
-#: .././wpumaps.php:226
+#: .././wpumaps.php:255
 msgid "Mapbox Key"
 msgstr "Clé Mapbox"
 
-#: .././wpumaps.php:228
+#: .././wpumaps.php:257
 msgid "This key is defined in wp-config.php and cannot be changed here."
 msgstr ""
 "Cette clé est définie dans wp-config.php et ne peut pas être modifiée ici."
 
-#: .././wpumaps.php:245
+#: .././wpumaps.php:274
 msgid "Maps"
 msgstr "Cartes"
 
-#: .././wpumaps.php:249
+#: .././wpumaps.php:278
 msgid "All Maps"
 msgstr "Toutes les cartes"
 
-#: .././wpumaps.php:250
+#: .././wpumaps.php:279
 msgid "Add New Map"
 msgstr "Ajouter une nouvelle carte"
 
-#: .././wpumaps.php:251
+#: .././wpumaps.php:280
 msgid "Edit Map"
 msgstr "Modifier la carte"
 
-#: .././wpumaps.php:252
+#: .././wpumaps.php:281
 msgid "New Map"
 msgstr "Nouvelle carte"
 
-#: .././wpumaps.php:253
+#: .././wpumaps.php:282
 msgid "View Map"
 msgstr "Voir la carte"
 
-#: .././wpumaps.php:254
+#: .././wpumaps.php:283
 msgid "Search Maps"
 msgstr "Rechercher des cartes"
 
-#: .././wpumaps.php:255
+#: .././wpumaps.php:284
 msgid "No maps found"
 msgstr "Aucune carte trouvée"
 
-#: .././wpumaps.php:256
+#: .././wpumaps.php:285
 msgid "No maps found in Trash"
 msgstr "Aucune carte trouvée dans la corbeille"
 
-#: .././wpumaps.php:268 .././wpumaps.php:299 .././wpumaps.php:300
+#: .././wpumaps.php:297 .././wpumaps.php:328 .././wpumaps.php:329
 msgid "Markers"
 msgstr "Marqueurs"
 
-#: .././wpumaps.php:272
+#: .././wpumaps.php:301
 msgid "All Markers"
 msgstr "Tous les marqueurs"
 
-#: .././wpumaps.php:273
+#: .././wpumaps.php:302
 msgid "Add New Marker"
 msgstr "Ajouter un nouveau marqueur"
 
-#: .././wpumaps.php:274
+#: .././wpumaps.php:303
 msgid "Edit Marker"
 msgstr "Editer marqueur"
 
-#: .././wpumaps.php:275
+#: .././wpumaps.php:304
 msgid "New Marker"
 msgstr "Nouveau marqueur"
 
-#: .././wpumaps.php:276
+#: .././wpumaps.php:305
 msgid "View Marker"
 msgstr "Voir le marqueur"
 
-#: .././wpumaps.php:277
+#: .././wpumaps.php:306
 msgid "Search Markers"
 msgstr "Rechercher des marqueurs"
 
-#: .././wpumaps.php:278
+#: .././wpumaps.php:307
 msgid "No markers found"
 msgstr "Aucun marqueur trouvé"
 
-#: .././wpumaps.php:279
+#: .././wpumaps.php:308
 msgid "No markers found in Trash"
 msgstr "Aucun marqueur trouvé dans la corbeille"
 
-#: .././wpumaps.php:308 .././wpumaps.php:309
+#: .././wpumaps.php:337 .././wpumaps.php:338
 msgid "Categories"
 msgstr "Catégories"
 
-#: .././wpumaps.php:347
-msgid ""
-"If you do not have a Mapbox key, you can get one for free at https://"
-"www.mapbox.com/"
+#: .././wpumaps.php:376
+msgid "Valid"
+msgstr "Valide"
+
+#: .././wpumaps.php:377
+msgid "Invalid"
+msgstr "Invalide"
+
+#: .././wpumaps.php:378
+#, php-format
+msgid "If you do not have a Mapbox key, you can get one for free at %s"
 msgstr ""
 "Si vous n’avez pas de clé Mapbox, vous pouvez en obtenir une gratuitement "
-"sur https://www.mapbox.com/"
+"sur %s"
 
-#: .././wpumaps.php:348
-msgid "Test this API Key : <button>test</button>"
-msgstr "Testez cette clé API : <button>Test</button>"
+#: .././wpumaps.php:379
+#, php-format
+msgid "Test this API Key : %s"
+msgstr "Testez cette clé API : %s"
 
-#: .././wpumaps.php:517
+#: .././wpumaps.php:668
 msgid "Preview"
 msgstr "Aperçu"
 
-#: .././wpumaps.php:522
+#: .././wpumaps.php:673
 msgid "Preview saved map"
 msgstr "Prévisualiser la carte sauvegardée"
 

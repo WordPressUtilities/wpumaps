@@ -31,9 +31,9 @@ document.addEventListener("DOMContentLoaded", function() {
         var test_url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/Paris.json?access_token=' + encodeURIComponent($input.value.trim());
         fetch(test_url).then(function(response) {
             if (response.ok) {
-                $btn.innerText = '✅ Valid';
+                $btn.innerText = '✅ ' + wpumaps_admin_settings.mapbox_text_valid;
             } else {
-                $btn.innerText = '❌ Invalid';
+                $btn.innerText = '❌ ' + wpumaps_admin_settings.mapbox_text_invalid;
             }
         });
     });

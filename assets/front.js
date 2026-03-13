@@ -50,7 +50,7 @@ function wpumaps_load_map(_map) {
     }
 
     /* if not lat or no lng, center between markers */
-    if (_map.map_details.lat === 0 && _map.map_details.lng === 0) {
+    if (_map.map_details.lat === 0 && _map.map_details.lng === 0 && _map.markers && _map.markers.length) {
         var lats = _map.markers.map(function(marker) {
             return marker.lat;
         });
@@ -81,10 +81,12 @@ function wpumaps_load_map(_map) {
 
     /* Map settings */
     map.addControl(new mapboxgl.NavigationControl());
-    map.scrollZoom.disable();
+    if (_map.map_details.scrollwheel_enable === undefined || _map.map_details.scrollwheel_enable === false) {
+        map.scrollZoom.disable();
+    }
 
     /* If zoom is 0 and we have markers, fit bounds */
-    if (_map.map_details.zoom === 0) {
+    if (_map.map_details.zoom === 0 && _map.markers && _map.markers.length) {
         if (_map.markers.length > 1) {
             var bounds = new mapboxgl.LngLatBounds();
             _map.markers.forEach(function(marker) {
