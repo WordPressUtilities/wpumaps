@@ -71,11 +71,16 @@ function wpumaps_load_map(_map) {
         _style = _map.map_details.style;
     }
 
+    var _style_url = 'mapbox://styles/mapbox/' + (_style.length ? _style : 'streets-v11');
+    if( _style === 'custom' && _map.map_details.style_custom && _map.map_details.style_custom.length) {
+        _style_url = _map.map_details.style_custom;
+    }
+
     /* Load map */
     var map = new mapboxgl.Map({
         container: $map_target,
         zoom: _map.map_details.zoom,
-        style: 'mapbox://styles/mapbox/' + (_style.length ? _style : 'streets-v11'),
+        style: _style_url,
         center: [_map.map_details.lng, _map.map_details.lat]
     });
 
@@ -114,34 +119,36 @@ function wpumaps_load_map(_map) {
     /* Add markers */
     _map.markers.forEach(function(marker) {
 
-        var _marker_height = 32;
-
-        var _marker_params = {};
-        if (marker.icon_url) {
-            var _icon_el = document.createElement('div');
-            _icon_el = document.createElement('div');
-            _icon_el.className = 'wpumaps-marker-icon';
-            _icon_el.style.backgroundImage = 'url(' + marker.icon_url + ')';
-            _marker_params.element = _icon_el;
-            _marker_params.offset = {
-                x: 0,
-                y: -_marker_height / 2
-            };
-
-        }
-
-        var _marker = new mapboxgl.Marker(_marker_params)
-            .setLngLat([marker.lng, marker.lat])
-            .addTo(map);
-
         var _popup_content = '';
-
         if (marker.popup_content_image) {
             _popup_content += '<div class="wpumaps-marker-popup-image"><img src="' + marker.popup_content_image + '" alt="" /></div>';
         }
         if (marker.popup_content_html && marker.popup_content_html.length) {
             _popup_content += '<div class="wpumaps-marker-popup-content">' + marker.popup_content_html + '</div>';
         }
+
+        var _marker_height = 32;
+        if (_map.map_details.marker_width) {
+            _marker_height = _map.map_details.marker_width;
+        }
+
+        var _marker_params = {};
+        if (marker.icon_url) {
+            var _icon_el = document.createElement('div');
+            _icon_el = document.createElement('div');
+            _icon_el.className = 'wpumaps-marker-icon' + (_popup_content ? ' wpumaps-marker-icon--has-popup' : '');
+            _icon_el.style.backgroundImage = 'url(' + marker.icon_url + ')';
+            _marker_params.element = _icon_el;
+            _marker_params.offset = {
+                x: 0,
+                y: -_marker_height / 2
+            };
+        }
+
+        var _marker = new mapboxgl.Marker(_marker_params)
+            .setLngLat([marker.lng, marker.lat])
+            .addTo(map);
+
 
         if (_popup_content) {
             var _popup_settings = {

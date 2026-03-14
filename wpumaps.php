@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.9.0
+Version: 0.10.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.9.0';
+    private $plugin_version = '0.10.0';
     private $plugin_settings = array(
         'id' => 'wpumaps',
         'name' => 'WPU Maps'
@@ -161,16 +161,22 @@ class WPUMaps {
                 'satellite-v9' => 'Satellite',
                 'satellite-streets-v11' => 'Satellite Streets',
                 'navigation-day-v1' => 'Navigation Day',
-                'navigation-night-v1' => 'Navigation Night'
+                'navigation-night-v1' => 'Navigation Night',
+                'custom' => __('Custom style', 'wpumaps')
+            )
+        );
+        $mapbox_studio_link = make_clickable('https://console.mapbox.com/studio/');
+        $mapbox_studio_link = str_replace('<a href=', '<a target="_blank" href=', $mapbox_studio_link);
+        $fields['map_style_custom'] = array(
+            'label' => __('Custom style URL', 'wpumaps'),
+            'type' => 'text',
+            'group' => 'maps',
+            'help' => __('Create a custom style on Mapbox Studio :', 'wpumaps') . ' ' . $mapbox_studio_link,
+            'toggle-display' => array(
+                'map_style' => 'custom'
             )
         );
 
-        $fields['map_scrollwheel_enable'] = array(
-            'label' => __('Enable scroll zoom', 'wpumaps'),
-            'type' => 'checkbox',
-            'help' => __('If enabled, users will be able to zoom the map using their mouse scroll wheel.', 'wpumaps'),
-            'group' => 'maps_settings'
-        );
         $map_categories = get_terms(array(
             'taxonomy' => 'marker_categories',
             'hide_empty' => false
@@ -194,6 +200,23 @@ class WPUMaps {
                 'data' => $categories
             );
         }
+        $fields['map_scrollwheel_enable'] = array(
+            'label' => __('Enable scroll zoom', 'wpumaps'),
+            'type' => 'checkbox',
+            'help' => __('If enabled, users will be able to zoom the map using their mouse scroll wheel.', 'wpumaps'),
+            'group' => 'maps_settings'
+        );
+        $fields['map_marker_width'] = array(
+            'label' => __('Marker width (px)', 'wpumaps'),
+            'type' => 'number',
+            'help' => __('Set a custom width for the markers on this map. The height will be adjusted automatically to keep the aspect ratio.', 'wpumaps'),
+            'group' => 'maps_settings',
+            'default_value' => 32,
+            'extra_attributes' => array(
+                'step' => '1',
+                'min' => '1'
+            )
+        );
 
         /* MARKERS */
         $field_groups['markers'] = array(
@@ -536,6 +559,8 @@ class WPUMaps {
             $map_details['lng'] = floatval(get_post_meta($map_id, 'map_lat_lng__lng', 1));
         }
         $map_details['style'] = get_post_meta($map_id, 'map_style', 1);
+        $map_details['style_custom'] = get_post_meta($map_id, 'map_style_custom', 1);
+        $map_details['marker_width'] = get_post_meta($map_id, 'map_marker_width', 1) ? intval(get_post_meta($map_id, 'map_marker_width', 1)) : 32;
         $map_details['scrollwheel_enable'] = get_post_meta($map_id, 'map_scrollwheel_enable', 1) ? true : false;
 
         return $map_details;
@@ -606,7 +631,8 @@ class WPUMaps {
         });
 
         /* Wrapper */
-        $html = '<div class="wpumaps__wrapper" data-wpumaps="' . esc_attr($map_data['map_id']) . '">';
+        $marker_width = isset($map_data['map_details']['marker_width']) ? intval($map_data['map_details']['marker_width']) : 32;
+        $html = '<div style="--wpumaps-marker-icon-width: ' . esc_attr($marker_width) . 'px;" class="wpumaps__wrapper" data-wpumaps="' . esc_attr($map_data['map_id']) . '">';
         $html .= '<div class="wpumaps__map"></div>';
         $html .= '</div>';
 
