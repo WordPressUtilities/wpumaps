@@ -41,11 +41,12 @@ function wpumaps_load_map(_map) {
         return;
     }
 
+    var _initial_zoom = 0;
     if (!_map.map_details || _map.map_details.length === 0) {
         _map.map_details = {
             lat: 0,
             lng: 0,
-            zoom: 0
+            zoom: _initial_zoom
         };
     }
 
@@ -72,7 +73,7 @@ function wpumaps_load_map(_map) {
     }
 
     var _style_url = 'mapbox://styles/mapbox/' + (_style.length ? _style : 'streets-v11');
-    if( _style === 'custom' && _map.map_details.style_custom && _map.map_details.style_custom.length) {
+    if (_style === 'custom' && _map.map_details.style_custom && _map.map_details.style_custom.length) {
         _style_url = _map.map_details.style_custom;
     }
 
@@ -103,6 +104,7 @@ function wpumaps_load_map(_map) {
                     padding: 60,
                     duration: 0
                 });
+                _initial_zoom = map.getZoom();
             }
             fitBounds();
             window.addEventListener('resize', fitBounds);
@@ -114,6 +116,27 @@ function wpumaps_load_map(_map) {
                 zoom: 14
             });
         }
+    }
+
+    /* Reset map when leaving area */
+    var _initial_center = [parseFloat(_map.map_details.lng, 10), parseFloat(_map.map_details.lat, 10)];
+    function resetMap() {
+        map.flyTo({
+            center: _initial_center,
+            essential: true,
+            duration: 500,
+            zoom: _initial_zoom
+        });
+    }
+    if (_map.map_details.reset_when_leaving) {
+        var _timeout_reset;
+        $map.addEventListener('mouseleave', function() {
+            clearTimeout(_timeout_reset);
+            _timeout_reset = setTimeout(resetMap, 1000);
+        });
+        $map.addEventListener('mousemove', function() {
+            clearTimeout(_timeout_reset);
+        });
     }
 
     /* Add markers */

@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.10.0
+Version: 0.10.1
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.10.0';
+    private $plugin_version = '0.10.1';
     private $plugin_settings = array(
         'id' => 'wpumaps',
         'name' => 'WPU Maps'
@@ -200,6 +200,12 @@ class WPUMaps {
                 'data' => $categories
             );
         }
+        $fields['map_reset_when_leaving'] = array(
+            'label' => __('Reset map when leaving area', 'wpumaps'),
+            'type' => 'checkbox',
+            'help' => __('If enabled, the map will reset to its initial state when the user leaves the area.', 'wpumaps'),
+            'group' => 'maps_settings'
+        );
         $fields['map_scrollwheel_enable'] = array(
             'label' => __('Enable scroll zoom', 'wpumaps'),
             'type' => 'checkbox',
@@ -562,6 +568,7 @@ class WPUMaps {
         $map_details['style_custom'] = get_post_meta($map_id, 'map_style_custom', 1);
         $map_details['marker_width'] = get_post_meta($map_id, 'map_marker_width', 1) ? intval(get_post_meta($map_id, 'map_marker_width', 1)) : 32;
         $map_details['scrollwheel_enable'] = get_post_meta($map_id, 'map_scrollwheel_enable', 1) ? true : false;
+        $map_details['reset_when_leaving'] = get_post_meta($map_id, 'map_reset_when_leaving', 1) ? true : false;
 
         return $map_details;
     }
