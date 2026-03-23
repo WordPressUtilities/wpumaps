@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.11.0
+Version: 0.12.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.11.0';
+    private $plugin_version = '0.12.0';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -898,15 +898,21 @@ class WPUMaps {
     ---------------------------------------------------------- */
 
     public function page_content__import() {
+        $example_file = base64_encode(file_get_contents(__DIR__ . '/inc/example-markers.csv'));
         /* Import */
         echo wpautop(__('Import markers from a CSV file. The file should contain the marker name, coordinates, address and popup content.', 'wpumaps'));
         echo wpautop(__('The uniqid field is used to uniquely identify each marker and to allow updates during import. If a marker with the same uniqid already exists, it will be updated instead of creating a new one.', 'wpumaps'));
         echo wpautop(__('New marker are created with the "draft" status, so you can review them before publishing.', 'wpumaps'));
         echo '<input type="file" name="wpumaps_import_file" accept=".csv" />';
-        submit_button(__('Import markers', 'wpumaps'), 'primary', 'wpumaps_import_markers');
+        echo '<p>';
+        submit_button(__('Import markers', 'wpumaps'), 'primary', 'wpumaps_import_markers', false);
+        echo ' <a href="data:text/csv;base64,' . $example_file . '" class="button" download="example-markers.csv">' . __('Example file', 'wpumaps') . '</a>';
+        echo '</p>';
+
         /* Find markers without lat or lng */
         $markers_without_coordinates = $this->get_markers_without_coordinates();
         if (!empty($markers_without_coordinates)) {
+            echo '<hr />';
             echo '<h2>' . esc_html__('Markers with missing coordinates', 'wpumaps') . '</h2>';
             echo '<ul>';
             foreach ($markers_without_coordinates as $marker) {
@@ -989,12 +995,7 @@ class WPUMaps {
                 }
                 $new_markers++;
             }
-            update_post_meta($marker_id, 'marker_unique_id', $uniqid);
-            update_post_meta($marker_id, 'marker_lat_lng__lat', isset($item['lat']) ? floatval($item['lat']) : 0);
-            update_post_meta($marker_id, 'marker_lat_lng__lng', isset($item['lng']) ? floatval($item['lng']) : 0);
-            update_post_meta($marker_id, 'marker_lat_lng__address', isset($item['address']) ? sanitize_text_field($item['address']) : '');
-            update_post_meta($marker_id, 'marker_popup_title', isset($item['popup_title']) ? sanitize_text_field($item['popup_title']) : '');
-            update_post_meta($marker_id, 'marker_popup_content', isset($item['popup_content']) ? sanitize_textarea_field($item['popup_content']) : '');
+            $this->update_marker_from_import_item($marker_id, $item);
         }
 
         if ($new_markers > 0) {
@@ -1005,6 +1006,37 @@ class WPUMaps {
             $str = $markers_updated > 1 ? __('%d markers updated.', 'wpumaps') : __('%d marker updated.', 'wpumaps');
             $this->messages->set_message('update_success', sprintf($str, $markers_updated), 'updated');
         }
+    }
+
+    private function update_marker_from_import_item($marker_id, $item) {
+        update_post_meta($marker_id, 'marker_unique_id', isset($item['uniqid']) ? sanitize_text_field($item['uniqid']) : '');
+        update_post_meta($marker_id, 'marker_lat_lng__lat', isset($item['lat']) ? floatval($item['lat']) : 0);
+        update_post_meta($marker_id, 'marker_lat_lng__lng', isset($item['lng']) ? floatval($item['lng']) : 0);
+        update_post_meta($marker_id, 'marker_lat_lng__address', isset($item['address']) ? sanitize_text_field($item['address']) : '');
+        update_post_meta($marker_id, 'marker_popup_title', isset($item['popup_title']) ? sanitize_text_field($item['popup_title']) : '');
+        update_post_meta($marker_id, 'marker_popup_content', isset($item['popup_content']) ? sanitize_textarea_field($item['popup_content']) : '');
+        if (isset($item['categories'])) {
+            $this->update_marker_from_import_item_categories($marker_id, $item['categories']);
+        }
+    }
+
+    private function update_marker_from_import_item_categories($marker_id, $categories_slugs) {
+        $term_ids = array();
+        foreach (explode('|', $categories_slugs) as $cat_slug) {
+            $cat_slug = sanitize_title($cat_slug);
+            if (!$cat_slug) {
+                continue;
+            }
+            $term = get_term_by('slug', $cat_slug, 'marker_categories');
+            if (!$term) {
+                $term = wp_insert_term($cat_slug, 'marker_categories', array('slug' => $cat_slug));
+                $term = is_wp_error($term) ? false : get_term($term['term_id'], 'marker_categories');
+            }
+            if ($term && !is_wp_error($term)) {
+                $term_ids[] = $term->term_id;
+            }
+        }
+        wp_set_post_terms($marker_id, $term_ids, 'marker_categories');
     }
 
     /* ----------------------------------------------------------
@@ -1083,6 +1115,11 @@ class WPUMaps {
                 $uniqid = 'marker-' . $marker->ID;
                 update_post_meta($marker->ID, 'marker_unique_id', $uniqid);
             }
+            $marker_terms = get_the_terms($marker->ID, 'marker_categories');
+            $categories_slugs = '';
+            if ($marker_terms && !is_wp_error($marker_terms)) {
+                $categories_slugs = implode('|', wp_list_pluck($marker_terms, 'slug'));
+            }
             $export_data_item = array(
                 'uniqid' => $uniqid,
                 'name' => $marker_title,
@@ -1090,7 +1127,8 @@ class WPUMaps {
                 'lng' => get_post_meta($marker->ID, 'marker_lat_lng__lng', 1),
                 'address' => get_post_meta($marker->ID, 'marker_lat_lng__address', 1),
                 'popup_title' => get_post_meta($marker->ID, 'marker_popup_title', 1),
-                'popup_content' => get_post_meta($marker->ID, 'marker_popup_content', 1)
+                'popup_content' => get_post_meta($marker->ID, 'marker_popup_content', 1),
+                'categories' => $categories_slugs
             );
             $export_data[] = $export_data_item;
 

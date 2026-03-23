@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU Maps\n"
-"POT-Creation-Date: 2026-03-22 22:43+0100\n"
+"POT-Creation-Date: 2026-03-23 20:00+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -380,7 +380,7 @@ msgstr "Aperçu"
 msgid "Preview saved map"
 msgstr "Prévisualiser la carte sauvegardée"
 
-#: .././wpumaps.php:902
+#: .././wpumaps.php:903
 msgid ""
 "Import markers from a CSV file. The file should contain the marker name, "
 "coordinates, address and popup content."
@@ -389,7 +389,7 @@ msgstr ""
 "le nom du marqueur, ses coordonnées, son adresse et le contenu de la fenêtre "
 "contextuelle."
 
-#: .././wpumaps.php:903
+#: .././wpumaps.php:904
 msgid ""
 "The uniqid field is used to uniquely identify each marker and to allow "
 "updates during import. If a marker with the same uniqid already exists, it "
@@ -400,7 +400,7 @@ msgstr ""
 "même « uniqid » existe déjà, celui-ci sera mis à jour au lieu d'en créer un "
 "nouveau."
 
-#: .././wpumaps.php:904
+#: .././wpumaps.php:905
 msgid ""
 "New marker are created with the \"draft\" status, so you can review them "
 "before publishing."
@@ -408,59 +408,63 @@ msgstr ""
 "Les nouveaux marqueurs sont créés avec le statut « brouillon », ce qui vous "
 "permet de les vérifier avant de les publier."
 
-#: .././wpumaps.php:906
+#: .././wpumaps.php:908
 msgid "Import markers"
 msgstr "Importer des marqueurs"
 
-#: .././wpumaps.php:917
+#: .././wpumaps.php:909
+msgid "Example file"
+msgstr "Fichier d'exemple"
+
+#: .././wpumaps.php:923
 msgid "Geocode markers with missing coordinates"
 msgstr "Géocoder les marqueurs dont les coordonnées sont manquantes"
 
-#: .././wpumaps.php:934 .././wpumaps.php:955
+#: .././wpumaps.php:940 .././wpumaps.php:961
 msgid "Invalid CSV file."
 msgstr "Fichier CSV non valide."
 
-#: .././wpumaps.php:964
+#: .././wpumaps.php:970
 msgid "At least one marker is missing a uniqid."
 msgstr "Au moins un marqueur ne dispose pas d'un identifiant unique."
 
-#: .././wpumaps.php:1001
+#: .././wpumaps.php:1002
 #, php-format
 msgid "%d markers created."
 msgstr "%d marqueurs créés."
 
-#: .././wpumaps.php:1001
+#: .././wpumaps.php:1002
 #, php-format
 msgid "%d marker created."
 msgstr "%d marqueur créé."
 
-#: .././wpumaps.php:1005
+#: .././wpumaps.php:1006
 #, php-format
 msgid "%d markers updated."
 msgstr "%d marqueurs mis à jour."
 
-#: .././wpumaps.php:1005
+#: .././wpumaps.php:1006
 #, php-format
 msgid "%d marker updated."
 msgstr "%d marqueur mis à jour."
 
-#: .././wpumaps.php:1031
+#: .././wpumaps.php:1063
 #, php-format
 msgid "%d markers geocoded."
 msgstr "%d marqueurs géocodés."
 
-#: .././wpumaps.php:1031
+#: .././wpumaps.php:1063
 #, php-format
 msgid "%d marker geocoded."
 msgstr "%d marqueur géocodé."
 
-#: .././wpumaps.php:1034
+#: .././wpumaps.php:1066
 msgid "No marker could be geocoded. Please check the addresses and try again."
 msgstr ""
 "Aucun marqueur n'a pu être géocodé. Veuillez vérifier les adresses et "
 "réessayer."
 
-#: .././wpumaps.php:1061
+#: .././wpumaps.php:1093
 msgid ""
 "Export all your markers in a CSV file. The exported file contains the marker "
 "name, coordinates, address and popup content."
@@ -469,7 +473,7 @@ msgstr ""
 "le nom du marqueur, ses coordonnées, son adresse et le contenu de la fenêtre "
 "contextuelle."
 
-#: .././wpumaps.php:1062
+#: .././wpumaps.php:1094
 msgid ""
 "This file can be used to import your markers. The uniqid field is used to "
 "uniquely identify each marker and to allow updates during import."
@@ -478,7 +482,7 @@ msgstr ""
 "identifier de manière unique chaque marqueur et à permettre les mises à jour "
 "lors de l'importation."
 
-#: .././wpumaps.php:1063
+#: .././wpumaps.php:1095
 msgid "Export all markers"
 msgstr "Exporter tous les marqueurs"
 

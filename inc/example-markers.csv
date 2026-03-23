@@ -1,0 +1,3 @@
+uniqid,name,lat,lng,address,popup_title,popup_content,categories
+marker-arc,"Arc de Triomphe",48.873281,2.294499,"Place Charles de Gaulle, 75008 Paris",,,monuments
+marker-musee,"Musee Grevin",48.871889,2.342028,"10 Bd Montmartre, 75009 Paris",,,museums|culture
