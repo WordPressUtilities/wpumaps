@@ -172,6 +172,16 @@ function wpumaps_load_map(_map) {
             .setLngLat([marker.lng, marker.lat])
             .addTo(map);
 
+        if (_map.map_details.center_on_marker_click) {
+            _marker.getElement().addEventListener('click', function() {
+                map.flyTo({
+                    center: [parseFloat(marker.lng, 10), parseFloat(marker.lat, 10)],
+                    essential: true,
+                    duration: 500,
+                    zoom: Math.max(map.getZoom(), 14)
+                });
+            });
+        }
 
         if (_popup_content) {
             var _popup_settings = {
@@ -187,6 +197,13 @@ function wpumaps_load_map(_map) {
             var popup = new mapboxgl.Popup(_popup_settings)
                 .setHTML(_popup_content);
             _marker.setPopup(popup);
+
+            if (_map.map_details.reset_on_popup_close) {
+                popup.on('close', function() {
+                    resetMap();
+                });
+            }
+
         }
 
 

@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.12.0
+Version: 0.13.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.12.0';
+    private $plugin_version = '0.13.0';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -80,6 +80,7 @@ class WPUMaps {
 
         /* Preview */
         add_action('add_meta_boxes', array($this, 'add_map_metabox'));
+        add_action('add_meta_boxes', array($this, 'add_marker_metabox'));
         add_action('template_redirect', array($this, 'preview_map'));
     }
 
@@ -264,6 +265,18 @@ class WPUMaps {
             'label' => __('Enable scroll zoom', 'wpumaps'),
             'type' => 'checkbox',
             'help' => __('If enabled, users will be able to zoom the map using their mouse scroll wheel.', 'wpumaps'),
+            'group' => 'maps_settings'
+        );
+        $fields['map_center_on_marker_click'] = array(
+            'label' => __('Center map on marker click', 'wpumaps'),
+            'type' => 'checkbox',
+            'help' => __('If enabled, the map will center on a marker when it is clicked.', 'wpumaps'),
+            'group' => 'maps_settings'
+        );
+        $fields['map_reset_on_popup_close'] = array(
+            'label' => __('Reset map on popup close', 'wpumaps'),
+            'type' => 'checkbox',
+            'help' => __('If enabled, the map will reset to its initial state when a marker popup is closed.', 'wpumaps'),
             'group' => 'maps_settings'
         );
         $fields['map_marker_width'] = array(
@@ -622,6 +635,8 @@ class WPUMaps {
         $map_details['style_custom'] = get_post_meta($map_id, 'map_style_custom', 1);
         $map_details['marker_width'] = get_post_meta($map_id, 'map_marker_width', 1) ? intval(get_post_meta($map_id, 'map_marker_width', 1)) : 32;
         $map_details['scrollwheel_enable'] = get_post_meta($map_id, 'map_scrollwheel_enable', 1) ? true : false;
+        $map_details['center_on_marker_click'] = get_post_meta($map_id, 'map_center_on_marker_click', 1) ? true : false;
+        $map_details['reset_on_popup_close'] = get_post_meta($map_id, 'map_reset_on_popup_close', 1) ? true : false;
         $map_details['reset_when_leaving'] = get_post_meta($map_id, 'map_reset_when_leaving', 1) ? true : false;
 
         return $map_details;
@@ -869,6 +884,9 @@ class WPUMaps {
         if (isset($current_screen->action) && $current_screen->action == 'add') {
             return;
         }
+        if (get_post_status() == 'draft') {
+            return;
+        }
         add_meta_box(
             'wpumaps_map_preview',
             __('Preview', 'wpumaps'),
@@ -883,12 +901,49 @@ class WPUMaps {
         );
     }
 
-    public function preview_map() {
-        if (!is_user_logged_in() || !isset($_GET['wpumaps_preview_map']) || !is_numeric($_GET['wpumaps_preview_map']) || !current_user_can($this->plugin_settings['user_capability'])) {
+    public function add_marker_metabox() {
+        $current_screen = get_current_screen();
+        if (!$current_screen || !in_array($current_screen->post_type, array('map_markers'))) {
             return;
         }
+        if (isset($current_screen->action) && $current_screen->action == 'add') {
+            return;
+        }
+        if (get_post_status() == 'draft') {
+            return;
+        }
+        add_meta_box(
+            'wpumaps_marker_preview',
+            __('Preview', 'wpumaps'),
+            function ($post) {
+                $preview_url = add_query_arg(array(
+                    'wpumaps_preview_marker' => $post->ID
+                ), home_url('/'));
+                echo '<a href="' . esc_url($preview_url) . '" target="_blank" class="button">' . esc_html(__('Preview saved marker', 'wpumaps')) . '</a>';
+            },
+            'map_markers',
+            'side'
+        );
+    }
+
+    public function preview_map() {
+        if (!is_user_logged_in() || !current_user_can($this->plugin_settings['user_capability'])) {
+            return;
+        }
+
+        $map_content = false;
+        if (isset($_GET['wpumaps_preview_map']) && is_numeric($_GET['wpumaps_preview_map'])) {
+            $map_content = $this->display_map(array('id' => intval($_GET['wpumaps_preview_map'])));
+        }
+        if (isset($_GET['wpumaps_preview_marker']) && is_numeric($_GET['wpumaps_preview_marker'])) {
+            $map_content = $this->display_map(array('marker_id' => intval($_GET['wpumaps_preview_marker'])));
+        }
+        if (!$map_content) {
+            return;
+        }
+
         wp_head();
-        echo '<div class="wpumaps-preview-wrapper">' . $this->display_map(array('id' => intval($_GET['wpumaps_preview_map']))) . '</div>';
+        echo '<div class="wpumaps-preview-wrapper">' . $map_content . '</div>';
         wp_footer();
         exit;
     }
