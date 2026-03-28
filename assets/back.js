@@ -1,4 +1,25 @@
 /* ----------------------------------------------------------
+  Preview iframe toggle
+---------------------------------------------------------- */
+
+document.addEventListener("DOMContentLoaded", function() {
+    'use strict';
+    document.addEventListener('click', function(event) {
+        var $btn = event.target.closest('.wpumaps-preview-toggle');
+        if (!$btn) {
+            return;
+        }
+        var $wrap = $btn.nextElementSibling;
+        var $iframe = $wrap.querySelector('.wpumaps-preview-iframe');
+        var isVisible = $wrap.style.display !== 'none';
+        $wrap.style.display = isVisible ? 'none' : 'block';
+        if (!isVisible && !$iframe.src) {
+            $iframe.src = $btn.getAttribute('data-preview-url');
+        }
+    });
+});
+
+/* ----------------------------------------------------------
   Dynamic Help Text for Mapbox Key Field
 ---------------------------------------------------------- */
 

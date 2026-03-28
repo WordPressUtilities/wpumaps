@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var mapbox_assets_url = 'https://api.mapbox.com/mapbox-gl-js/' + window.wpumaps_settings.mapbox_version + '/';
 
+
     /* Load CSS */
     var link = document.createElement('link');
     link.href = mapbox_assets_url + 'mapbox-gl.css';
@@ -17,16 +18,37 @@ document.addEventListener('DOMContentLoaded', function() {
     document.head.appendChild(link);
 
     /* Load JS async */
-    var script = document.createElement('script');
-    script.src = mapbox_assets_url + 'mapbox-gl.js';
-    script.async = true;
-    script.onload = function() {
+    wpumaps_load_js(mapbox_assets_url + 'mapbox-gl.js', function() {
         mapboxgl.accessToken = window.wpumaps_settings.mapbox_key;
         Array.prototype.forEach.call(window.wpumaps, wpumaps_load_map);
-    }
-    document.head.appendChild(script);
+    });
 
 });
+
+function wpumaps_load_js(_url, _callback) {
+    'use strict';
+    var existing_script = document.querySelector('script[src="' + _url + '"]');
+    if (existing_script) {
+        if (typeof _callback != 'function') {
+            return;
+        }
+        if (existing_script.getAttribute('data-wpumaps-loaded') == '1') {
+            _callback();
+        } else {
+            existing_script.addEventListener('load', _callback);
+        }
+        return;
+    }
+    var script = document.createElement('script');
+    script.src = _url;
+    script.onload = function() {
+        script.setAttribute('data-wpumaps-loaded', '1');
+        if (typeof _callback === 'function') {
+            _callback();
+        }
+    };
+    document.head.appendChild(script);
+}
 
 
 function wpumaps_load_map(_map) {
@@ -136,6 +158,20 @@ function wpumaps_load_map(_map) {
         });
         $map.addEventListener('mousemove', function() {
             clearTimeout(_timeout_reset);
+        });
+    }
+
+    /* Search box */
+    if (_map.map_details.show_search_box) {
+        wpumaps_load_js('https://api.mapbox.com/search-js/' + window.wpumaps_settings.mapbox_autofill_version + '/web.js', function() {
+            const searchBox = new MapboxSearchBox();
+            searchBox.accessToken = window.wpumaps_settings.mapbox_key;
+            searchBox.options = {
+                types: 'city, country',
+            };
+            searchBox.marker = true;
+            searchBox.mapboxgl = mapboxgl;
+            map.addControl(searchBox, 'top-left');
         });
     }
 

@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.13.0
+Version: 0.14.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.13.0';
+    private $plugin_version = '0.14.0';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -36,10 +36,10 @@ class WPUMaps {
     private $settings_obj;
     private $settings_details;
 
-    # https://docs.mapbox.com/mapbox-gl-js/guides/install/#import-or-install-mapbox-gl-js
-    private $mapbox_version = 'v3.18.0';
+    # https://docs.mapbox.com/mapbox-gl-js/guides/get-started/use-with-cdn/
+    private $mapbox_version = 'v3.20.0';
     # https://docs.mapbox.com/mapbox-search-js/guides/autofill/web/#installation-when-using-the-mapbox-cdn
-    private $mapbox_autofill_version = 'v1.5.0';
+    private $mapbox_autofill_version = 'v1.5.1';
     # https://docs.mapbox.com/api/search/geocoding/
     private $mapbox_geocoding_version = 'v6';
 
@@ -79,8 +79,8 @@ class WPUMaps {
         add_shortcode('wpumaps_map', array($this, 'display_map'));
 
         /* Preview */
-        add_action('add_meta_boxes', array($this, 'add_map_metabox'));
-        add_action('add_meta_boxes', array($this, 'add_marker_metabox'));
+        add_action('add_meta_boxes', array($this, 'add_map_metabox'), 99);
+        add_action('add_meta_boxes', array($this, 'add_marker_metabox'), 99);
         add_action('template_redirect', array($this, 'preview_map'));
     }
 
@@ -232,16 +232,15 @@ class WPUMaps {
             )
         );
 
+        $field_groups['maps_settings_markers'] = array(
+            'label' => __('Markers', 'wpumaps'),
+            'post_type' => array('maps')
+        );
         $map_categories = get_terms(array(
             'taxonomy' => 'marker_categories',
             'hide_empty' => false
         ));
         if (!empty($map_categories)) {
-            $field_groups['maps_settings'] = array(
-                'label' => __('Settings', 'wpumaps'),
-                'post_type' => array('maps')
-            );
-
             $categories = array();
             foreach ($map_categories as $category) {
                 $categories[$category->term_id] = $category->name . ' (' . $category->count . ')';
@@ -251,14 +250,30 @@ class WPUMaps {
                 'type' => 'checkboxes',
                 'taxonomy' => 'marker_categories',
                 'help' => __('Select the categories of markers to display on this map. If none selected, all categories will be displayed.', 'wpumaps'),
-                'group' => 'maps_settings',
+                'group' => 'maps_settings_markers',
                 'data' => $categories
             );
         }
-        $fields['map_reset_when_leaving'] = array(
-            'label' => __('Reset map when leaving area', 'wpumaps'),
+        $fields['map_marker_width'] = array(
+            'label' => __('Marker width (px)', 'wpumaps'),
+            'type' => 'number',
+            'help' => __('Set a custom width for the markers on this map. The height will be adjusted automatically to keep the aspect ratio.', 'wpumaps'),
+            'group' => 'maps_settings_markers',
+            'default_value' => 32,
+            'extra_attributes' => array(
+                'step' => '1',
+                'min' => '1'
+            )
+        );
+
+        $field_groups['maps_settings'] = array(
+            'label' => __('Settings', 'wpumaps'),
+            'post_type' => array('maps')
+        );
+        $fields['maps_show_search_box'] = array(
+            'label' => __('Show search box', 'wpumaps'),
             'type' => 'checkbox',
-            'help' => __('If enabled, the map will reset to its initial state when the user leaves the area.', 'wpumaps'),
+            'help' => __('If enabled, a search box will be displayed on the map, allowing users to search for locations.', 'wpumaps'),
             'group' => 'maps_settings'
         );
         $fields['map_scrollwheel_enable'] = array(
@@ -279,16 +294,11 @@ class WPUMaps {
             'help' => __('If enabled, the map will reset to its initial state when a marker popup is closed.', 'wpumaps'),
             'group' => 'maps_settings'
         );
-        $fields['map_marker_width'] = array(
-            'label' => __('Marker width (px)', 'wpumaps'),
-            'type' => 'number',
-            'help' => __('Set a custom width for the markers on this map. The height will be adjusted automatically to keep the aspect ratio.', 'wpumaps'),
-            'group' => 'maps_settings',
-            'default_value' => 32,
-            'extra_attributes' => array(
-                'step' => '1',
-                'min' => '1'
-            )
+        $fields['map_reset_when_leaving'] = array(
+            'label' => __('Reset map when leaving area', 'wpumaps'),
+            'type' => 'checkbox',
+            'help' => __('If enabled, the map will reset to its initial state when the user leaves the area.', 'wpumaps'),
+            'group' => 'maps_settings'
         );
 
         /* MARKERS */
@@ -498,6 +508,7 @@ class WPUMaps {
         wp_register_script('wpumaps_front_script', plugins_url('assets/front.js', __FILE__), array(), $this->plugin_version, true);
         wp_localize_script('wpumaps_front_script', 'wpumaps_settings', array(
             'mapbox_version' => $this->mapbox_version,
+            'mapbox_autofill_version' => $this->mapbox_autofill_version,
             'mapbox_key' => $this->get_mapbox_key()
         ));
         wp_enqueue_script('wpumaps_front_script');
@@ -635,6 +646,7 @@ class WPUMaps {
         $map_details['style_custom'] = get_post_meta($map_id, 'map_style_custom', 1);
         $map_details['marker_width'] = get_post_meta($map_id, 'map_marker_width', 1) ? intval(get_post_meta($map_id, 'map_marker_width', 1)) : 32;
         $map_details['scrollwheel_enable'] = get_post_meta($map_id, 'map_scrollwheel_enable', 1) ? true : false;
+        $map_details['show_search_box'] = get_post_meta($map_id, 'maps_show_search_box', 1) ? true : false;
         $map_details['center_on_marker_click'] = get_post_meta($map_id, 'map_center_on_marker_click', 1) ? true : false;
         $map_details['reset_on_popup_close'] = get_post_meta($map_id, 'map_reset_on_popup_close', 1) ? true : false;
         $map_details['reset_when_leaving'] = get_post_meta($map_id, 'map_reset_when_leaving', 1) ? true : false;
@@ -894,10 +906,11 @@ class WPUMaps {
                 $preview_url = add_query_arg(array(
                     'wpumaps_preview_map' => $post->ID
                 ), home_url('/'));
-                echo '<a href="' . esc_url($preview_url) . '" target="_blank" class="button">' . esc_html(__('Preview saved map', 'wpumaps')) . '</a>';
+                $this->preview_metabox_content($preview_url, __('Preview saved map', 'wpumaps'));
             },
             'maps',
-            'side'
+            'advanced',
+            'low'
         );
     }
 
@@ -919,11 +932,19 @@ class WPUMaps {
                 $preview_url = add_query_arg(array(
                     'wpumaps_preview_marker' => $post->ID
                 ), home_url('/'));
-                echo '<a href="' . esc_url($preview_url) . '" target="_blank" class="button">' . esc_html(__('Preview saved marker', 'wpumaps')) . '</a>';
+                $this->preview_metabox_content($preview_url, __('Preview saved marker', 'wpumaps'));
             },
             'map_markers',
-            'side'
+            'advanced',
+            'low'
         );
+    }
+
+    public function preview_metabox_content($preview_url, $button_label) {
+        echo '<button type="button" class="button wpumaps-preview-toggle" data-preview-url="' . esc_url($preview_url) . '">' . esc_html($button_label) . '</button>';
+        echo '<div class="wpumaps-preview-iframe-wrap" style="display:none;margin-top:10px;">';
+        echo '<iframe class="wpumaps-preview-iframe" style="width:100%;height:500px;border:1px solid #ccd0d4;"></iframe>';
+        echo '</div>';
     }
 
     public function preview_map() {
