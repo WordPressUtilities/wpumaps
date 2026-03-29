@@ -220,8 +220,18 @@ function wpumaps_load_map(_map) {
         }
 
         if (_popup_content) {
+            var _popup_classname = 'wpumaps-marker-popup';
+            if(marker.popup_content_image) {
+                _popup_classname += ' wpumaps-marker-popup--has-image';
+            }
+            if(marker.categories && marker.categories.length) {
+                marker.categories.forEach(function(category) {
+                    _popup_classname += ' wpumaps-marker-popup--category-' + category;
+                });
+            }
+
             var _popup_settings = {
-                className: 'wpumaps-marker-popup',
+                className: _popup_classname,
                 focusAfterOpen: false
             };
             if (marker.icon_url) {

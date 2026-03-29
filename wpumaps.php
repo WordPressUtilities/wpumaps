@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.14.0
+Version: 0.14.1
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.14.0';
+    private $plugin_version = '0.14.1';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -344,6 +344,11 @@ class WPUMaps {
             'type' => 'textarea',
             'group' => 'markers_popup'
         );
+        $fields['marker_popup_button'] = array(
+            'label' => __('Button', 'wpumaps'),
+            'type' => 'wp_link',
+            'group' => 'markers_popup'
+        );
         require_once __DIR__ . '/inc/WPUBaseFields/WPUBaseFields.php';
         $this->basefields = new \wpumaps\WPUBaseFields($fields, $field_groups);
     }
@@ -585,9 +590,14 @@ class WPUMaps {
                 $popup_content_html .= wpautop($popup_content);
             }
         }
+        $popup_button = json_decode(get_post_meta($marker->ID, 'marker_popup_button', 1), true);
+        if ($popup_button && isset($popup_button['url'],$popup_button['title'], $popup_button['target'] ) && !empty($popup_button['url']) && !empty($popup_button['title'])) {
+            $popup_content_html .= wpautop('<a href="' . esc_url($popup_button['url']) . '" target="' . esc_attr($popup_button['target']) . '" class="wpumaps-popup-button">' . esc_html($popup_button['title']) . '</a>');
+        }
 
         $marker_data = array(
             'name' => get_the_title($marker),
+            'categories' => wp_get_post_terms($marker->ID, 'marker_categories', array('fields' => 'slugs')),
             'lat' => (get_post_meta($marker->ID, 'marker_lat_lng__lat', 1)),
             'lng' => (get_post_meta($marker->ID, 'marker_lat_lng__lng', 1))
         );
@@ -1204,6 +1214,7 @@ class WPUMaps {
                 'address' => get_post_meta($marker->ID, 'marker_lat_lng__address', 1),
                 'popup_title' => get_post_meta($marker->ID, 'marker_popup_title', 1),
                 'popup_content' => get_post_meta($marker->ID, 'marker_popup_content', 1),
+                'popup_button' => get_post_meta($marker->ID, 'marker_popup_button', 1),
                 'categories' => $categories_slugs
             );
             $export_data[] = $export_data_item;
