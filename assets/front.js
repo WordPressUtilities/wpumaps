@@ -175,6 +175,16 @@ function wpumaps_load_map(_map) {
         });
     }
 
+    if (_map.map_details.show_geolocate_control) {
+        map.addControl(new mapboxgl.GeolocateControl({
+            positionOptions: {
+                enableHighAccuracy: true
+            },
+            trackUserLocation: true,
+            showUserHeading: true
+        }));
+    }
+
     /* Add markers */
     _map.markers.forEach(function(marker) {
 

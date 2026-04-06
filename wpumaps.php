@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.14.1
+Version: 0.14.2
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.14.1';
+    private $plugin_version = '0.14.2';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -274,6 +274,12 @@ class WPUMaps {
             'label' => __('Show search box', 'wpumaps'),
             'type' => 'checkbox',
             'help' => __('If enabled, a search box will be displayed on the map, allowing users to search for locations.', 'wpumaps'),
+            'group' => 'maps_settings'
+        );
+        $fields['maps_show_geolocate_control'] = array(
+            'label' => __('Show geolocate control', 'wpumaps'),
+            'type' => 'checkbox',
+            'help' => __('If enabled, a geolocate control will be displayed on the map, allowing users to center the map on their current location.', 'wpumaps'),
             'group' => 'maps_settings'
         );
         $fields['map_scrollwheel_enable'] = array(
@@ -657,6 +663,7 @@ class WPUMaps {
         $map_details['marker_width'] = get_post_meta($map_id, 'map_marker_width', 1) ? intval(get_post_meta($map_id, 'map_marker_width', 1)) : 32;
         $map_details['scrollwheel_enable'] = get_post_meta($map_id, 'map_scrollwheel_enable', 1) ? true : false;
         $map_details['show_search_box'] = get_post_meta($map_id, 'maps_show_search_box', 1) ? true : false;
+        $map_details['show_geolocate_control'] = get_post_meta($map_id, 'maps_show_geolocate_control', 1) ? true : false;
         $map_details['center_on_marker_click'] = get_post_meta($map_id, 'map_center_on_marker_click', 1) ? true : false;
         $map_details['reset_on_popup_close'] = get_post_meta($map_id, 'map_reset_on_popup_close', 1) ? true : false;
         $map_details['reset_when_leaving'] = get_post_meta($map_id, 'map_reset_when_leaving', 1) ? true : false;
@@ -972,6 +979,8 @@ class WPUMaps {
         if (!$map_content) {
             return;
         }
+
+        add_filter('show_admin_bar', '__return_false');
 
         wp_head();
         echo '<div class="wpumaps-preview-wrapper">' . $map_content . '</div>';
