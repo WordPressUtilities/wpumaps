@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.14.3
+Version: 0.15.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.14.3';
+    private $plugin_version = '0.15.0';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -66,6 +66,8 @@ class WPUMaps {
         add_action('admin_notices', array(&$this, 'admin_notices__map_markers'));
 
         /* Cache */
+        add_action('trashed_post', array(&$this, 'deleted_post'), 999, 3);
+        add_action('deleted_post', array(&$this, 'deleted_post'), 999, 3);
         add_action('save_post', array(&$this, 'save_post_maps'), 999, 3);
         add_action('save_post', array(&$this, 'save_post_map_markers'), 999, 3);
         add_action('saved_marker_categories', array(&$this, 'generate_cache'), 999, 3);
@@ -858,6 +860,17 @@ class WPUMaps {
 
     }
 
+    /* Purge cache */
+    public function deleted_post($post_ID){
+        $post_type = get_post_type($post_ID);
+        error_log('WPUMaps: Post deleted with ID ' . $post_ID . ' and type ' . $post_type);
+        if ($post_type === 'maps') {
+            $this->generate_cache(array($post_ID));
+        } elseif ($post_type === 'map_markers') {
+            $this->generate_cache(array());
+        }
+    }
+
     /* Create cache */
 
     public function save_post_maps($post_ID) {
@@ -1264,7 +1277,7 @@ class WPUMaps {
 
         }
 
-        $this->basetoolbox->export_array_to_csv($export_data, 'wpumaps_markers_export.csv');
+        $this->basetoolbox->export_array_to_csv($export_data, 'wpumaps_markers_export');
 
     }
 

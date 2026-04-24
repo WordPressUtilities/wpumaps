@@ -107,6 +107,24 @@ function wpumaps_load_map(_map) {
         center: [_map.map_details.lng, _map.map_details.lat]
     });
 
+    map.on('style.load', () => {
+        const pageLanguage = document.documentElement.lang?.split('-')[0] || 'en';
+        setMapLanguage(map, pageLanguage);
+    });
+
+    function setMapLanguage(map, lang) {
+        const supported = ['ar', 'de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'pt', 'ru', 'zh'];
+        const resolvedLang = supported.includes(lang) ? lang : 'en';
+        const field = ['get', `name_${resolvedLang}`];
+
+        map.getStyle().layers.forEach(layer => {
+            if (layer.type !== 'symbol') return;
+            const layout = map.getLayoutProperty(layer.id, 'text-field');
+            if (!layout) return;
+            map.setLayoutProperty(layer.id, 'text-field', field);
+        });
+    }
+
     /* Map settings */
     map.addControl(new mapboxgl.NavigationControl());
     if (_map.map_details.scrollwheel_enable === undefined || _map.map_details.scrollwheel_enable === false) {
@@ -231,10 +249,10 @@ function wpumaps_load_map(_map) {
 
         if (_popup_content) {
             var _popup_classname = 'wpumaps-marker-popup';
-            if(marker.popup_content_image) {
+            if (marker.popup_content_image) {
                 _popup_classname += ' wpumaps-marker-popup--has-image';
             }
-            if(marker.categories && marker.categories.length) {
+            if (marker.categories && marker.categories.length) {
                 marker.categories.forEach(function(category) {
                     _popup_classname += ' wpumaps-marker-popup--category-' + category;
                 });
