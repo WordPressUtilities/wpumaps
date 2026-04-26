@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPU Maps\n"
-"POT-Creation-Date: 2026-04-23 23:32+0200\n"
+"POT-Creation-Date: 2026-04-26 23:04+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-Basepath: .\n"
-"X-Poedit-KeywordsList: __;_x;_e;_n\n"
+"X-Poedit-KeywordsList: __;_x;_e;_n;esc_html__\n"
 "X-Generator: Poedit 3.9\n"
 "X-Poedit-SearchPath-0: ../.\n"
 "X-Poedit-SearchPathExcluded-0: inc/WPUBaseAdminDatas\n"
@@ -67,8 +67,8 @@ msgstr "Ce champ est invalide"
 
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:135
 #: .././inc/WPUBaseSettings/WPUBaseSettings.php:703
-#: .././inc/WPUBaseSettings/WPUBaseSettings.php:710 .././wpumaps.php:281
-#: .././wpumaps.php:327 .././wpumaps.php:379
+#: .././inc/WPUBaseSettings/WPUBaseSettings.php:710 .././wpumaps.php:283
+#: .././wpumaps.php:329 .././wpumaps.php:381
 msgid "Settings"
 msgstr "Réglages"
 
@@ -168,72 +168,72 @@ msgstr ""
 msgid "No data available."
 msgstr "Pas de données disponibles."
 
-#: .././wpumaps.php:95
+#: .././wpumaps.php:97
 msgid "Simple maps for your website"
 msgstr "Des cartes simples pour votre site web"
 
-#: .././wpumaps.php:124
+#: .././wpumaps.php:126
 msgid "Import"
 msgstr "Importer"
 
-#: .././wpumaps.php:134
+#: .././wpumaps.php:136
 msgid "Export"
 msgstr "Exporter"
 
-#: .././wpumaps.php:161
+#: .././wpumaps.php:163
 msgid "Address"
 msgstr "Adresse"
 
-#: .././wpumaps.php:165
+#: .././wpumaps.php:167
 msgid "Latitude"
 msgstr "Latitude"
 
-#: .././wpumaps.php:172
+#: .././wpumaps.php:174
 msgid "Longitude"
 msgstr "Longitude"
 
-#: .././wpumaps.php:187 .././wpumaps.php:323
+#: .././wpumaps.php:189 .././wpumaps.php:325
 msgid "Coordinates"
 msgstr "Coordonnées"
 
-#: .././wpumaps.php:191
+#: .././wpumaps.php:193
 msgid "Enable auto center"
 msgstr "Activer le centrage automatique"
 
-#: .././wpumaps.php:193
+#: .././wpumaps.php:195
 msgid "If enabled, the map will automatically center on the markers."
 msgstr "Si activé, la carte se centre automatiquement sur les marqueurs."
 
-#: .././wpumaps.php:197
+#: .././wpumaps.php:199
 msgid "Zoom level"
 msgstr "Niveau de zoom"
 
-#: .././wpumaps.php:219
+#: .././wpumaps.php:221
 msgid "Map style"
 msgstr "Style de Carte"
 
-#: .././wpumaps.php:231
+#: .././wpumaps.php:233
 msgid "Custom style"
 msgstr "Style personnalisé"
 
-#: .././wpumaps.php:237
+#: .././wpumaps.php:239
 msgid "Custom style URL"
 msgstr "URL de style personnalisée"
 
-#: .././wpumaps.php:240
+#: .././wpumaps.php:242
 msgid "Create a custom style on Mapbox Studio :"
 msgstr "Créer un style personnalisé dans Mapbox Studio :"
 
-#: .././wpumaps.php:247 .././wpumaps.php:435 .././wpumaps.php:466
-#: .././wpumaps.php:467
+#: .././wpumaps.php:249 .././wpumaps.php:437 .././wpumaps.php:468
+#: .././wpumaps.php:469
 msgid "Markers"
 msgstr "Marqueurs"
 
-#: .././wpumaps.php:260 .././wpumaps.php:451
+#: .././wpumaps.php:262 .././wpumaps.php:453
 msgid "Marker Categories"
 msgstr "Catégories de marqueur"
 
-#: .././wpumaps.php:263
+#: .././wpumaps.php:265
 msgid ""
 "Select the categories of markers to display on this map. If none selected, "
 "all categories will be displayed."
@@ -241,11 +241,11 @@ msgstr ""
 "Sélectionnez les catégories de marqueurs à afficher sur cette carte. Si "
 "aucune n’est sélectionnée, toutes les catégories seront affichées."
 
-#: .././wpumaps.php:269
+#: .././wpumaps.php:271
 msgid "Marker width (px)"
 msgstr "Largeur des marqueurs (px)"
 
-#: .././wpumaps.php:271
+#: .././wpumaps.php:273
 msgid ""
 "Set a custom width for the markers on this map. The height will be adjusted "
 "automatically to keep the aspect ratio."
@@ -254,11 +254,11 @@ msgstr ""
 "hauteur sera ajustée automatiquement afin de conserver le rapport hauteur/"
 "largeur."
 
-#: .././wpumaps.php:285
+#: .././wpumaps.php:287
 msgid "Show search box"
 msgstr "Afficher le champ de recherche"
 
-#: .././wpumaps.php:287
+#: .././wpumaps.php:289
 msgid ""
 "If enabled, a search box will be displayed on the map, allowing users to "
 "search for locations."
@@ -266,11 +266,11 @@ msgstr ""
 "Si cette option est activée, un champ de recherche s'affichera sur la carte, "
 "permettant aux utilisateurs de rechercher des lieux."
 
-#: .././wpumaps.php:291
+#: .././wpumaps.php:293
 msgid "Show geolocate control"
 msgstr "Afficher le contrôle de géolocalisation"
 
-#: .././wpumaps.php:293
+#: .././wpumaps.php:295
 msgid ""
 "If enabled, a geolocate control will be displayed on the map, allowing users "
 "to center the map on their current location."
@@ -279,11 +279,11 @@ msgstr ""
 "carte, permettant aux utilisateurs de centrer la carte sur leur position "
 "actuelle."
 
-#: .././wpumaps.php:297
+#: .././wpumaps.php:299
 msgid "Enable scroll zoom"
 msgstr "Activer le zoom avec la molette"
 
-#: .././wpumaps.php:299
+#: .././wpumaps.php:301
 msgid ""
 "If enabled, users will be able to zoom the map using their mouse scroll "
 "wheel."
@@ -291,21 +291,21 @@ msgstr ""
 "Si activé, les utilisateurs pourront zoomer la carte à l’aide de la molette "
 "de la souris."
 
-#: .././wpumaps.php:303
+#: .././wpumaps.php:305
 msgid "Center map on marker click"
 msgstr "Centrer la carte lorsque l'on clique sur un marqueur"
 
-#: .././wpumaps.php:305
+#: .././wpumaps.php:307
 msgid "If enabled, the map will center on a marker when it is clicked."
 msgstr ""
 "Si cette option est activée, la carte se centrera sur un marqueur lorsque "
 "l'on clique dessus."
 
-#: .././wpumaps.php:309
+#: .././wpumaps.php:311
 msgid "Reset map on popup close"
 msgstr "Réinitialiser la carte à la fermeture d’un popup"
 
-#: .././wpumaps.php:311
+#: .././wpumaps.php:313
 msgid ""
 "If enabled, the map will reset to its initial state when a marker popup is "
 "closed."
@@ -313,11 +313,11 @@ msgstr ""
 "Si cette option est activée, la carte reviendra à son état initial dès qu'un "
 "popup de marqueur sera fermé."
 
-#: .././wpumaps.php:315
+#: .././wpumaps.php:317
 msgid "Reset map when leaving area"
 msgstr "Réinitialiser la carte en quittant la zone"
 
-#: .././wpumaps.php:317
+#: .././wpumaps.php:319
 msgid ""
 "If enabled, the map will reset to its initial state when the user leaves the "
 "area."
@@ -325,148 +325,153 @@ msgstr ""
 "Si cette option est activée, la carte reviendra à son état initial lorsque "
 "l'utilisateur quittera la zone."
 
-#: .././wpumaps.php:331
+#: .././wpumaps.php:333
 msgid "Popup"
 msgstr "Popup"
 
-#: .././wpumaps.php:341 .././wpumaps.php:346
+#: .././wpumaps.php:343 .././wpumaps.php:348
 msgid "Icon"
 msgstr "Icône"
 
-#: .././wpumaps.php:351
+#: .././wpumaps.php:353
 msgid "Image"
 msgstr "Image"
 
-#: .././wpumaps.php:356
+#: .././wpumaps.php:358
 msgid "Title"
 msgstr "Titre"
 
-#: .././wpumaps.php:360
+#: .././wpumaps.php:362
 msgid "Content"
 msgstr "Contenu"
 
-#: .././wpumaps.php:365
+#: .././wpumaps.php:367
 msgid "Button"
 msgstr "Bouton"
 
-#: .././wpumaps.php:386
+#: .././wpumaps.php:388
 msgid "Mapbox"
 msgstr "Mapbox"
 
-#: .././wpumaps.php:393
+#: .././wpumaps.php:395
 msgid "Mapbox Key"
 msgstr "Clé Mapbox"
 
-#: .././wpumaps.php:395
+#: .././wpumaps.php:397
 msgid "This key is defined in wp-config.php and cannot be changed here."
 msgstr ""
 "Cette clé est définie dans wp-config.php et ne peut pas être modifiée ici."
 
-#: .././wpumaps.php:412
+#: .././wpumaps.php:414
 msgid "Maps"
 msgstr "Cartes"
 
-#: .././wpumaps.php:416
+#: .././wpumaps.php:418
 msgid "All Maps"
 msgstr "Toutes les cartes"
 
-#: .././wpumaps.php:417
+#: .././wpumaps.php:419
 msgid "Add New Map"
 msgstr "Ajouter une nouvelle carte"
 
-#: .././wpumaps.php:418
+#: .././wpumaps.php:420
 msgid "Edit Map"
 msgstr "Modifier la carte"
 
-#: .././wpumaps.php:419
+#: .././wpumaps.php:421
 msgid "New Map"
 msgstr "Nouvelle carte"
 
-#: .././wpumaps.php:420
+#: .././wpumaps.php:422
 msgid "View Map"
 msgstr "Voir la carte"
 
-#: .././wpumaps.php:421
+#: .././wpumaps.php:423
 msgid "Search Maps"
 msgstr "Rechercher des cartes"
 
-#: .././wpumaps.php:422
+#: .././wpumaps.php:424
 msgid "No maps found"
 msgstr "Aucune carte trouvée"
 
-#: .././wpumaps.php:423
+#: .././wpumaps.php:425
 msgid "No maps found in Trash"
 msgstr "Aucune carte trouvée dans la corbeille"
 
-#: .././wpumaps.php:439
+#: .././wpumaps.php:441
 msgid "All Markers"
 msgstr "Tous les marqueurs"
 
-#: .././wpumaps.php:440
+#: .././wpumaps.php:442
 msgid "Add New Marker"
 msgstr "Ajouter un nouveau marqueur"
 
-#: .././wpumaps.php:441
+#: .././wpumaps.php:443
 msgid "Edit Marker"
 msgstr "Editer marqueur"
 
-#: .././wpumaps.php:442
+#: .././wpumaps.php:444
 msgid "New Marker"
 msgstr "Nouveau marqueur"
 
-#: .././wpumaps.php:443
+#: .././wpumaps.php:445
 msgid "View Marker"
 msgstr "Voir le marqueur"
 
-#: .././wpumaps.php:444
+#: .././wpumaps.php:446
 msgid "Search Markers"
 msgstr "Rechercher des marqueurs"
 
-#: .././wpumaps.php:445
+#: .././wpumaps.php:447
 msgid "No markers found"
 msgstr "Aucun marqueur trouvé"
 
-#: .././wpumaps.php:446
+#: .././wpumaps.php:448
 msgid "No markers found in Trash"
 msgstr "Aucun marqueur trouvé dans la corbeille"
 
-#: .././wpumaps.php:475 .././wpumaps.php:476
+#: .././wpumaps.php:477 .././wpumaps.php:478
 msgid "Categories"
 msgstr "Catégories"
 
-#: .././wpumaps.php:514
+#: .././wpumaps.php:516
 msgid "Valid"
 msgstr "Valide"
 
-#: .././wpumaps.php:515
+#: .././wpumaps.php:517
 msgid "Invalid"
 msgstr "Invalide"
 
-#: .././wpumaps.php:516
+#: .././wpumaps.php:518
 #, php-format
 msgid "If you do not have a Mapbox key, you can get one for free at %s"
 msgstr ""
 "Si vous n’avez pas de clé Mapbox, vous pouvez en obtenir une gratuitement "
 "sur %s"
 
-#: .././wpumaps.php:517
+#: .././wpumaps.php:519
 #, php-format
 msgid "Test this API Key : %s"
 msgstr "Testez cette clé API : %s"
 
-#: .././wpumaps.php:958 .././wpumaps.php:984
+#: .././wpumaps.php:950
+msgid "Marker could not be published because coordinates are invalid."
+msgstr ""
+"Le marqueur n'a pas pu être publié car les coordonnées ne sont pas valides."
+
+#: .././wpumaps.php:971 .././wpumaps.php:997
 msgid "Preview"
 msgstr "Aperçu"
 
-#: .././wpumaps.php:963
+#: .././wpumaps.php:976
 msgid "Preview saved map"
 msgstr "Prévisualiser la carte sauvegardée"
 
-#: .././wpumaps.php:989
+#: .././wpumaps.php:1002
 msgid "Preview saved marker"
 msgstr "Prévisualiser le marqueur sauvegardé"
 
-#: .././wpumaps.php:1035
+#: .././wpumaps.php:1048
 msgid ""
 "Import markers from a CSV file. The file should contain the marker name, "
 "coordinates, address and popup content."
@@ -475,7 +480,7 @@ msgstr ""
 "le nom du marqueur, ses coordonnées, son adresse et le contenu de la fenêtre "
 "contextuelle."
 
-#: .././wpumaps.php:1036
+#: .././wpumaps.php:1049
 msgid ""
 "The uniqid field is used to uniquely identify each marker and to allow "
 "updates during import. If a marker with the same uniqid already exists, it "
@@ -486,7 +491,7 @@ msgstr ""
 "même « uniqid » existe déjà, celui-ci sera mis à jour au lieu d'en créer un "
 "nouveau."
 
-#: .././wpumaps.php:1037
+#: .././wpumaps.php:1050
 msgid ""
 "New marker are created with the \"draft\" status, so you can review them "
 "before publishing."
@@ -494,63 +499,67 @@ msgstr ""
 "Les nouveaux marqueurs sont créés avec le statut « brouillon », ce qui vous "
 "permet de les vérifier avant de les publier."
 
-#: .././wpumaps.php:1040
+#: .././wpumaps.php:1053
 msgid "Import markers"
 msgstr "Importer des marqueurs"
 
-#: .././wpumaps.php:1041
+#: .././wpumaps.php:1054
 msgid "Example file"
 msgstr "Fichier d'exemple"
 
-#: .././wpumaps.php:1055
+#: .././wpumaps.php:1061
+msgid "Markers with missing coordinates"
+msgstr "Marqueurs dont les coordonnées sont manquantes"
+
+#: .././wpumaps.php:1068
 msgid "Geocode markers with missing coordinates"
 msgstr "Géocoder les marqueurs dont les coordonnées sont manquantes"
 
-#: .././wpumaps.php:1074 .././wpumaps.php:1080 .././wpumaps.php:1096
+#: .././wpumaps.php:1087 .././wpumaps.php:1093 .././wpumaps.php:1109
 msgid "Invalid CSV file."
 msgstr "Fichier CSV non valide."
 
-#: .././wpumaps.php:1108
+#: .././wpumaps.php:1121
 msgid "At least one marker is missing a uniqid."
 msgstr "Au moins un marqueur ne dispose pas d'un identifiant unique."
 
-#: .././wpumaps.php:1131
+#: .././wpumaps.php:1144
 #, php-format
 msgid "%d markers created."
 msgstr "%d marqueurs créés."
 
-#: .././wpumaps.php:1131
+#: .././wpumaps.php:1144
 #, php-format
 msgid "%d marker created."
 msgstr "%d marqueur créé."
 
-#: .././wpumaps.php:1135
+#: .././wpumaps.php:1148
 #, php-format
 msgid "%d markers updated."
 msgstr "%d marqueurs mis à jour."
 
-#: .././wpumaps.php:1135
+#: .././wpumaps.php:1148
 #, php-format
 msgid "%d marker updated."
 msgstr "%d marqueur mis à jour."
 
-#: .././wpumaps.php:1192
+#: .././wpumaps.php:1205
 #, php-format
 msgid "%d markers geocoded."
 msgstr "%d marqueurs géocodés."
 
-#: .././wpumaps.php:1192
+#: .././wpumaps.php:1205
 #, php-format
 msgid "%d marker geocoded."
 msgstr "%d marqueur géocodé."
 
-#: .././wpumaps.php:1195
+#: .././wpumaps.php:1208
 msgid "No marker could be geocoded. Please check the addresses and try again."
 msgstr ""
 "Aucun marqueur n'a pu être géocodé. Veuillez vérifier les adresses et "
 "réessayer."
 
-#: .././wpumaps.php:1222
+#: .././wpumaps.php:1235
 msgid ""
 "Export all your markers in a CSV file. The exported file contains the marker "
 "name, coordinates, address and popup content."
@@ -559,7 +568,7 @@ msgstr ""
 "le nom du marqueur, ses coordonnées, son adresse et le contenu de la fenêtre "
 "contextuelle."
 
-#: .././wpumaps.php:1223
+#: .././wpumaps.php:1236
 msgid ""
 "This file can be used to import your markers. The uniqid field is used to "
 "uniquely identify each marker and to allow updates during import."
@@ -568,7 +577,15 @@ msgstr ""
 "identifier de manière unique chaque marqueur et à permettre les mises à jour "
 "lors de l'importation."
 
-#: .././wpumaps.php:1224
+#: .././wpumaps.php:1238
+msgid "Export only markers from category:"
+msgstr "Exporter uniquement les marqueurs de la catégorie :"
+
+#: .././wpumaps.php:1240
+msgid "All categories"
+msgstr "Toutes les catégories"
+
+#: .././wpumaps.php:1250
 msgid "Export all markers"
 msgstr "Exporter tous les marqueurs"
 

@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.15.0
+Version: 0.15.1
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.15.0';
+    private $plugin_version = '0.15.1';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -861,7 +861,7 @@ class WPUMaps {
     }
 
     /* Purge cache */
-    public function deleted_post($post_ID){
+    public function deleted_post($post_ID) {
         $post_type = get_post_type($post_ID);
         error_log('WPUMaps: Post deleted with ID ' . $post_ID . ' and type ' . $post_type);
         if ($post_type === 'maps') {
@@ -1234,6 +1234,19 @@ class WPUMaps {
     public function page_content__export() {
         echo wpautop(__('Export all your markers in a CSV file. The exported file contains the marker name, coordinates, address and popup content.', 'wpumaps'));
         echo wpautop(__('This file can be used to import your markers. The uniqid field is used to uniquely identify each marker and to allow updates during import.', 'wpumaps'));
+        echo '<p>';
+        echo '<label for="wpumaps_export_categories">' . esc_html__('Export only markers from category:', 'wpumaps') . '</label><br />';
+        echo '<select name="wpumaps_export_categories" id="wpumaps_export_categories">';
+        echo '<option value="">' . esc_html__('All categories', 'wpumaps') . '</option>';
+        $categories = get_terms(array(
+            'taxonomy' => 'marker_categories',
+            'hide_empty' => false
+        ));
+        foreach ($categories as $category) {
+            echo '<option value="' . esc_attr($category->term_id) . '">' . esc_html($category->name) . ' (' . esc_html($category->count) . ')</option>';
+        }
+        echo '</select>';
+        echo '</p>';
         submit_button(__('Export all markers', 'wpumaps'), 'primary', 'wpumaps_export_markers');
     }
 
@@ -1241,10 +1254,21 @@ class WPUMaps {
         if (!isset($_POST['wpumaps_export_markers'])) {
             return;
         }
-        $markers = get_posts(array(
+
+        $q = array(
             'post_type' => 'map_markers',
             'posts_per_page' => -1
-        ));
+        );
+        if (isset($_POST['wpumaps_export_categories']) && !empty($_POST['wpumaps_export_categories']) && is_numeric($_POST['wpumaps_export_categories'])) {
+            $q['tax_query'] = array(
+                array(
+                    'taxonomy' => 'marker_categories',
+                    'field' => 'term_id',
+                    'terms' => intval($_POST['wpumaps_export_categories'])
+                )
+            );
+        }
+        $markers = get_posts($q);
 
         $export_data = array();
         foreach ($markers as $marker) {
