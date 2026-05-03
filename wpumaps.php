@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.15.2
+Version: 0.15.3
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.15.2';
+    private $plugin_version = '0.15.3';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -514,6 +514,7 @@ class WPUMaps {
             'mapbox_version' => $this->mapbox_version,
             'mapbox_text_valid' => __('Valid', 'wpumaps'),
             'mapbox_text_invalid' => __('Invalid', 'wpumaps'),
+            'mapbox_searchbox_placeholder' => __('Search', 'wpumaps'),
             'mapbox_key_help_empty_text' => sprintf(__('If you do not have a Mapbox key, you can get one for free at %s', 'wpumaps'), 'https://www.mapbox.com/'),
             'mapbox_key_help_filled_text' => sprintf(__('Test this API Key : %s', 'wpumaps'), '<button>Test</button>'),
             'mapbox_autofill_version' => $this->mapbox_autofill_version,

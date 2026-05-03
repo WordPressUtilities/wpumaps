@@ -84,6 +84,9 @@ document.addEventListener('DOMContentLoaded', function() {
 function wpumaps_setup_autofill($fields) {
     'use strict';
 
+    var _lang = document.documentElement.lang || 'en';
+    _lang = _lang.split('-')[0];
+
     $fields.forEach(function($field) {
 
         /* Init element */
@@ -94,10 +97,16 @@ function wpumaps_setup_autofill($fields) {
         /* MapboxSearchBox supports all feature types (streets without numbers, lieux-dits, POI…) */
         var searchBox = new mapboxsearch.MapboxSearchBox();
 
+        searchBox.language = _lang;
+        searchBox.placeholder = wpumaps_admin_settings.mapbox_searchbox_placeholder;
+
         /* Insert into DOM first so the component can render its internals */
         $parent.insertBefore(searchBox, $field);
         searchBox.accessToken = wpumaps_admin_settings.mapbox_key;
-        searchBox.options = { types: 'address,street,place,poi,locality,neighborhood' };
+        searchBox.options = {
+            language: _lang,
+            types: 'address,street,place,poi,locality,neighborhood'
+        };
 
         /* Then move the field inside the search box */
         searchBox.appendChild($field);

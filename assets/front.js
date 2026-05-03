@@ -182,9 +182,13 @@ function wpumaps_load_map(_map) {
     /* Search box */
     if (_map.map_details.show_search_box) {
         wpumaps_load_js('https://api.mapbox.com/search-js/' + window.wpumaps_settings.mapbox_autofill_version + '/web.js', function() {
+            var _lang = document.documentElement.lang || 'en';
+            _lang = _lang.split('-')[0];
             const searchBox = new MapboxSearchBox();
             searchBox.accessToken = window.wpumaps_settings.mapbox_key;
+            searchBox.language = _lang;
             searchBox.options = {
+                language: _lang,
                 types: 'city, country',
             };
             searchBox.placeholder = window.wpumaps_settings.mapbox_searchbox_placeholder;
