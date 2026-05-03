@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.15.1
+Version: 0.15.2
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,14 +21,13 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.15.1';
+    private $plugin_version = '0.15.2';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
         'name' => 'WPU Maps'
     );
     private $basetoolbox;
-    private $basefields;
     private $basefilecache;
     private $baseadminpages;
     private $messages;
@@ -369,7 +368,7 @@ class WPUMaps {
             'group' => 'markers_popup'
         );
         require_once __DIR__ . '/inc/WPUBaseFields/WPUBaseFields.php';
-        $this->basefields = new \wpumaps\WPUBaseFields($fields, $field_groups);
+        new \wpumaps\WPUBaseFields($fields, $field_groups);
     }
 
     public function load_settings() {
@@ -533,7 +532,8 @@ class WPUMaps {
         wp_localize_script('wpumaps_front_script', 'wpumaps_settings', array(
             'mapbox_version' => $this->mapbox_version,
             'mapbox_autofill_version' => $this->mapbox_autofill_version,
-            'mapbox_key' => $this->get_mapbox_key()
+            'mapbox_key' => $this->get_mapbox_key(),
+            'mapbox_searchbox_placeholder' => __('Search', 'wpumaps')
         ));
         wp_enqueue_script('wpumaps_front_script');
     }
@@ -749,7 +749,7 @@ class WPUMaps {
         if (isset($atts['file']) && is_readable($atts['file'])) {
             $validated_file_path = $this->validate_map_file_path($atts['file']);
             if ($validated_file_path) {
-                $map_data = unserialize(file_get_contents($validated_file_path));
+                $map_data = unserialize(file_get_contents($validated_file_path), array('allowed_classes' => false));
             }
         }
 
@@ -764,7 +764,7 @@ class WPUMaps {
         add_action('wp_footer', function () use ($map_data) {
             echo '<script class="wpumaps__data">';
             echo 'window.wpumaps = window.wpumaps || [];';
-            echo 'window.wpumaps.push(' . json_encode($map_data) . ');';
+            echo 'window.wpumaps.push(' . wp_json_encode($map_data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ');';
             echo '</script>';
         });
 
@@ -923,10 +923,10 @@ class WPUMaps {
         $lng = isset($postarr['ID']) ? get_post_meta($postarr['ID'], 'marker_lat_lng__lng', true) : '';
         $lat = isset($postarr['ID']) ? get_post_meta($postarr['ID'], 'marker_lat_lng__lat', true) : '';
 
-        if (isset($_POST['wpubasefields_marker_lat_lng__lng'])) {
+        if (isset($_POST['wpubasefields_marker_lat_lng__lng']) && is_numeric($_POST['wpubasefields_marker_lat_lng__lng'])) {
             $lng = $_POST['wpubasefields_marker_lat_lng__lng'];
         }
-        if (isset($_POST['wpubasefields_marker_lat_lng__lat'])) {
+        if (isset($_POST['wpubasefields_marker_lat_lng__lat']) && is_numeric($_POST['wpubasefields_marker_lat_lng__lat'])) {
             $lat = $_POST['wpubasefields_marker_lat_lng__lat'];
         }
 
@@ -1051,7 +1051,7 @@ class WPUMaps {
         echo '<input required type="file" name="wpumaps_import_file" accept=".csv" />';
         echo '<p>';
         submit_button(__('Import markers', 'wpumaps'), 'primary', 'wpumaps_import_markers', false);
-        echo ' <a href="data:text/csv;base64,' . $example_file . '" class="button" download="example-markers.csv">' . esc_html(__('Example file', 'wpumaps')) . '</a>';
+        echo ' <a href="' . esc_attr('data:text/csv;base64,' . $example_file) . '" class="button" download="example-markers.csv">' . esc_html(__('Example file', 'wpumaps')) . '</a>';
         echo '</p>';
 
         /* Find markers without lat or lng */

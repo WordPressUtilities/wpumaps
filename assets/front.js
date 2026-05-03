@@ -187,6 +187,7 @@ function wpumaps_load_map(_map) {
             searchBox.options = {
                 types: 'city, country',
             };
+            searchBox.placeholder = window.wpumaps_settings.mapbox_searchbox_placeholder;
             searchBox.marker = true;
             searchBox.mapboxgl = mapboxgl;
             map.addControl(searchBox, 'top-left');
