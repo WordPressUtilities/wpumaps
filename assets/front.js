@@ -119,6 +119,7 @@ function wpumaps_load_map(_map) {
 
         map.getStyle().layers.forEach(layer => {
             if (layer.type !== 'symbol') return;
+            if (!layer.id.endsWith('-label')) return;
             const layout = map.getLayoutProperty(layer.id, 'text-field');
             if (!layout) return;
             map.setLayoutProperty(layer.id, 'text-field', field);

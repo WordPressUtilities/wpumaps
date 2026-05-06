@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.15.3
+Version: 0.15.4
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.15.3';
+    private $plugin_version = '0.15.4';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -1033,9 +1033,9 @@ class WPUMaps {
 
         add_filter('show_admin_bar', '__return_false');
 
-        wp_head();
+        get_header();
         echo '<div class="wpumaps-preview-wrapper">' . $map_content . '</div>';
-        wp_footer();
+        get_footer();
         exit;
     }
 
