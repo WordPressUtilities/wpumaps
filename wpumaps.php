@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.15.4
+Version: 0.15.5
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.15.4';
+    private $plugin_version = '0.15.5';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -36,7 +36,7 @@ class WPUMaps {
     private $settings_details;
 
     # https://docs.mapbox.com/mapbox-gl-js/guides/get-started/use-with-cdn/
-    private $mapbox_version = 'v3.21.0';
+    private $mapbox_version = 'v3.23.1';
     # https://docs.mapbox.com/mapbox-search-js/guides/autofill/web/#installation-when-using-the-mapbox-cdn
     private $mapbox_autofill_version = 'v1.5.0';
     # https://docs.mapbox.com/api/search/geocoding/
@@ -1233,6 +1233,13 @@ class WPUMaps {
     ---------------------------------------------------------- */
 
     public function page_content__export() {
+
+        $total_markers = wp_count_posts('map_markers');
+        if (empty($total_markers->publish) && empty($total_markers->draft)) {
+            echo wpautop(esc_html__('No marker found to export.', 'wpumaps'));
+            return;
+        }
+
         echo wpautop(__('Export all your markers in a CSV file. The exported file contains the marker name, coordinates, address and popup content.', 'wpumaps'));
         echo wpautop(__('This file can be used to import your markers. The uniqid field is used to uniquely identify each marker and to allow updates during import.', 'wpumaps'));
         echo '<p>';
