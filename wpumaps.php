@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.15.5
+Version: 0.15.6
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.15.5';
+    private $plugin_version = '0.15.6';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -843,7 +843,7 @@ class WPUMaps {
 
         /* File should be in cache dir */
         $real_base = realpath(WP_CONTENT_DIR . '/cache/');
-        if (!str_starts_with($file_path, $real_base)) {
+        if ($real_base === false || !str_starts_with($file_path, $real_base)) {
             return false;
         }
 
@@ -864,7 +864,6 @@ class WPUMaps {
     /* Purge cache */
     public function deleted_post($post_ID) {
         $post_type = get_post_type($post_ID);
-        error_log('WPUMaps: Post deleted with ID ' . $post_ID . ' and type ' . $post_type);
         if ($post_type === 'maps') {
             $this->generate_cache(array($post_ID));
         } elseif ($post_type === 'map_markers') {
@@ -917,12 +916,12 @@ class WPUMaps {
 
     /* Prevent publishing a marker if it doesn't have valid coordinates */
     public function wp_insert_post_data__map_markers($data, $postarr) {
-        if (!isset($postarr['post_type']) || $postarr['post_type'] != 'map_markers' || $data['post_status'] != 'publish' || !is_numeric($postarr['ID'])) {
+        if (!isset($postarr['post_type']) || $postarr['post_type'] != 'map_markers' || $data['post_status'] != 'publish' || !isset($postarr['ID']) || !is_numeric($postarr['ID'])) {
             return $data;
         }
 
-        $lng = isset($postarr['ID']) ? get_post_meta($postarr['ID'], 'marker_lat_lng__lng', true) : '';
-        $lat = isset($postarr['ID']) ? get_post_meta($postarr['ID'], 'marker_lat_lng__lat', true) : '';
+        $lng = get_post_meta($postarr['ID'], 'marker_lat_lng__lng', true);
+        $lat = get_post_meta($postarr['ID'], 'marker_lat_lng__lat', true);
 
         if (isset($_POST['wpubasefields_marker_lat_lng__lng']) && is_numeric($_POST['wpubasefields_marker_lat_lng__lng'])) {
             $lng = $_POST['wpubasefields_marker_lat_lng__lng'];
@@ -1125,7 +1124,6 @@ class WPUMaps {
 
             if (isset($existing_uniqids[$uniqid])) {
                 $marker_id = $existing_uniqids[$uniqid];
-                error_log('Updating existing marker with uniqid ' . $uniqid . ' (ID: ' . $marker_id . ')');
                 $markers_updated++;
             } else {
                 $marker_id = wp_insert_post(array(
@@ -1213,7 +1211,7 @@ class WPUMaps {
     public function geocode_address($address) {
         $geocoding_endpoint = 'https://api.mapbox.com/search/geocode/' . $this->mapbox_geocoding_version . '/forward?q=' . rawurlencode($address) . '&access_token=' . $this->get_mapbox_key();
         $geocode_informations = wp_remote_get($geocoding_endpoint);
-        if (is_wp_error($geocode_informations) || !isset($geocode_informations['body'])) {
+        if (is_wp_error($geocode_informations) || wp_remote_retrieve_response_code($geocode_informations) !== 200 || !isset($geocode_informations['body'])) {
             return false;
         }
         $geocode_informations = json_decode($geocode_informations['body'], true);

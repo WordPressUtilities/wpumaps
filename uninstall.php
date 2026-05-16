@@ -25,7 +25,10 @@ foreach ($allposts as $p) {
 
 /* Delete all terms */
 $taxonomy = 'marker_categories';
-$terms = get_terms($taxonomy, array('hide_empty' => false));
+$terms = get_terms(array(
+    'hide_empty' => false,
+    'taxonomy' => $taxonomy
+));
 foreach ($terms as $term) {
     wp_delete_term($term->term_id, $taxonomy);
 }
