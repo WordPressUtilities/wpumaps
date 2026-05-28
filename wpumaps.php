@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.15.6
+Version: 0.16.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.15.6';
+    private $plugin_version = '0.16.0';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -82,6 +82,7 @@ class WPUMaps {
         add_action('add_meta_boxes', array($this, 'add_map_metabox'), 99);
         add_action('add_meta_boxes', array($this, 'add_marker_metabox'), 99);
         add_action('template_redirect', array($this, 'preview_map'));
+        add_action('template_redirect', array($this, 'embed_map'));
     }
 
     # TRANSLATION
@@ -316,6 +317,12 @@ class WPUMaps {
             'label' => __('Reset map when leaving area', 'wpumaps'),
             'type' => 'checkbox',
             'help' => __('If enabled, the map will reset to its initial state when the user leaves the area.', 'wpumaps'),
+            'group' => 'maps_settings'
+        );
+        $fields['map_enable_embed'] = array(
+            'label' => __('Allow external embed', 'wpumaps'),
+            'type' => 'checkbox',
+            'help' => __('If enabled, this map can be embedded on external websites through an iframe. The embed code is available in the Preview box.', 'wpumaps'),
             'group' => 'maps_settings'
         );
 
@@ -973,7 +980,13 @@ class WPUMaps {
                 $preview_url = add_query_arg(array(
                     'wpumaps_preview_map' => $post->ID
                 ), home_url('/'));
-                $this->preview_metabox_content($preview_url, __('Preview saved map', 'wpumaps'));
+                $embed_url = '';
+                if (get_post_meta($post->ID, 'map_enable_embed', true)) {
+                    $embed_url = add_query_arg(array(
+                        'wpumaps_embed_map' => $post->ID
+                    ), home_url('/'));
+                }
+                $this->preview_metabox_content($preview_url, __('Preview saved map', 'wpumaps'), $embed_url);
             },
             'maps',
             'advanced',
@@ -1007,11 +1020,20 @@ class WPUMaps {
         );
     }
 
-    public function preview_metabox_content($preview_url, $button_label) {
+    public function preview_metabox_content($preview_url, $button_label, $embed_url = '') {
         echo '<button type="button" class="button wpumaps-preview-toggle" data-preview-url="' . esc_url($preview_url) . '">' . esc_html($button_label) . '</button>';
         echo '<div class="wpumaps-preview-iframe-wrap" style="display:none;margin-top:10px;">';
         echo '<iframe class="wpumaps-preview-iframe" style="width:100%;height:500px;border:1px solid #ccd0d4;"></iframe>';
         echo '</div>';
+
+        if ($embed_url) {
+            $iframe_code = '<iframe src="' . esc_url($embed_url) . '" width="100%" height="500" style="border:0;" loading="lazy"></iframe>';
+            echo '<div class="wpumaps-embed-box" style="margin-top:15px;">';
+            echo '<p style="margin:0 0 5px;"><strong>' . esc_html__('Embed code', 'wpumaps') . '</strong></p>';
+            echo '<textarea class="wpumaps-embed-code" readonly rows="3" style="width:100%;" onclick="this.select();">' . esc_textarea($iframe_code) . '</textarea>';
+            echo '<button type="button" class="button wpumaps-embed-copy" style="margin-top:5px;">' . esc_html__('Copy', 'wpumaps') . '</button>';
+            echo '</div>';
+        }
     }
 
     public function preview_map() {
@@ -1030,6 +1052,33 @@ class WPUMaps {
             return;
         }
 
+        add_filter('show_admin_bar', '__return_false');
+
+        get_header();
+        echo '<div class="wpumaps-preview-wrapper">' . $map_content . '</div>';
+        get_footer();
+        exit;
+    }
+
+    public function embed_map() {
+        if (!isset($_GET['wpumaps_embed_map']) || !is_numeric($_GET['wpumaps_embed_map'])) {
+            return;
+        }
+
+        $map_id = intval($_GET['wpumaps_embed_map']);
+        if (get_post_type($map_id) != 'maps' || get_post_status($map_id) != 'publish') {
+            return;
+        }
+        if (!get_post_meta($map_id, 'map_enable_embed', true)) {
+            return;
+        }
+
+        $map_content = $this->display_map(array('id' => $map_id));
+        if (!$map_content) {
+            return;
+        }
+
+        header_remove('X-Frame-Options');
         add_filter('show_admin_bar', '__return_false');
 
         get_header();

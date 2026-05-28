@@ -107,6 +107,8 @@ function wpumaps_load_map(_map) {
         center: [_map.map_details.lng, _map.map_details.lat]
     });
 
+    var map_is_zooming = false;
+
     map.on('style.load', () => {
         const pageLanguage = document.documentElement.lang?.split('-')[0] || 'en';
         setMapLanguage(map, pageLanguage);
@@ -162,6 +164,9 @@ function wpumaps_load_map(_map) {
     /* Reset map when leaving area */
     var _initial_center = [parseFloat(_map.map_details.lng, 10), parseFloat(_map.map_details.lat, 10)];
     function resetMap() {
+        if (map_is_zooming){
+            return;
+        }
         map.flyTo({
             center: _initial_center,
             essential: true,
@@ -244,10 +249,14 @@ function wpumaps_load_map(_map) {
 
         if (_map.map_details.center_on_marker_click) {
             _marker.getElement().addEventListener('click', function() {
+                map_is_zooming = true;
+                setTimeout(function() {
+                    map_is_zooming = false;
+                }, 1500);
                 map.flyTo({
                     center: [parseFloat(marker.lng, 10), parseFloat(marker.lat, 10)],
                     essential: true,
-                    duration: 500,
+                    duration: 1500,
                     zoom: Math.max(map.getZoom(), 14)
                 });
             });
