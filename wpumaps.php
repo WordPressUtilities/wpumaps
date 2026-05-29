@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.16.0
+Version: 0.16.1
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.16.0';
+    private $plugin_version = '0.16.1';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -1030,8 +1030,7 @@ class WPUMaps {
             $iframe_code = '<iframe src="' . esc_url($embed_url) . '" width="100%" height="500" style="border:0;" loading="lazy"></iframe>';
             echo '<div class="wpumaps-embed-box" style="margin-top:15px;">';
             echo '<p style="margin:0 0 5px;"><strong>' . esc_html__('Embed code', 'wpumaps') . '</strong></p>';
-            echo '<textarea class="wpumaps-embed-code" readonly rows="3" style="width:100%;" onclick="this.select();">' . esc_textarea($iframe_code) . '</textarea>';
-            echo '<button type="button" class="button wpumaps-embed-copy" style="margin-top:5px;">' . esc_html__('Copy', 'wpumaps') . '</button>';
+            echo '<textarea class="wpumaps-embed-code" readonly rows="2" style="width:100%;" onfocus="this.select();">' . esc_textarea($iframe_code) . '</textarea>';
             echo '</div>';
         }
     }
@@ -1081,8 +1080,14 @@ class WPUMaps {
         header_remove('X-Frame-Options');
         add_filter('show_admin_bar', '__return_false');
 
+        add_action('wp_head', function () {
+            echo '<style>body,html{overflow:hidden;max-height:100vh;}</style>';
+        });
+        add_action('wp_body_open', function () use ($map_content) {
+            echo '<div class="wpumaps-preview-wrapper">' . $map_content . '</div>';
+        });
+
         get_header();
-        echo '<div class="wpumaps-preview-wrapper">' . $map_content . '</div>';
         get_footer();
         exit;
     }

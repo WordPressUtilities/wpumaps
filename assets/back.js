@@ -20,31 +20,6 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 /* ----------------------------------------------------------
-  Copy embed code
----------------------------------------------------------- */
-
-document.addEventListener("DOMContentLoaded", function() {
-    'use strict';
-    document.addEventListener('click', function(event) {
-        var $btn = event.target.closest('.wpumaps-embed-copy');
-        if (!$btn) {
-            return;
-        }
-        var $code = $btn.parentElement.querySelector('.wpumaps-embed-code');
-        if (!$code) {
-            return;
-        }
-        $code.select();
-        navigator.clipboard.writeText($code.value);
-        var _label = $btn.innerText;
-        $btn.innerText = '✅';
-        setTimeout(function() {
-            $btn.innerText = _label;
-        }, 1500);
-    });
-});
-
-/* ----------------------------------------------------------
   Dynamic Help Text for Mapbox Key Field
 ---------------------------------------------------------- */
 
