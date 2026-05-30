@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 document.addEventListener('DOMContentLoaded', function() {
     'use strict';
-    var $fields = document.querySelectorAll('#wpubasefields_marker_lat_lng__address, #wpubasefields_map_lat_lng__address');
+    var $fields = document.querySelectorAll('.wpubasefield-list #wpubasefields_marker_lat_lng__address, .wpubasefield-list #wpubasefields_map_lat_lng__address');
     if (!$fields.length) {
         return;
     }

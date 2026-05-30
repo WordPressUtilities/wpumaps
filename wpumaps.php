@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.16.1
+Version: 0.17.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.16.1';
+    private $plugin_version = '0.17.0';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -160,7 +160,10 @@ class WPUMaps {
             'type' => 'group',
             'sub_fields' => array(
                 'address' => array(
-                    'label' => __('Address', 'wpumaps')
+                    'label' => __('Address', 'wpumaps'),
+                    'admin_column' => array(
+                        'label' => __('Address', 'wpumaps')
+                    )
                 ),
                 'lat' => array(
                     'column_start' => true,
@@ -348,12 +351,32 @@ class WPUMaps {
         $fields['marker_icon'] = array(
             'label' => __('Icon', 'wpumaps'),
             'type' => 'image',
-            'group' => 'markers'
+            'group' => 'markers',
+            'admin_column' => array(
+                'callback' => function($value, $object_id, $field_id) {
+                    $icon_url = $this->get_marker_icon_url($object_id, array(), true);
+                    if ($icon_url) {
+                        echo '<img src="' . esc_url($icon_url) . '" style="max-width: 32px; max-height: 32px;" />';
+                    } else {
+                        echo '-';
+                    }
+                }
+            )
         );
         $fields['marker_icon_category'] = array(
             'label' => __('Icon', 'wpumaps'),
             'type' => 'image',
-            'group' => 'markers_category'
+            'group' => 'markers_category',
+            'admin_column' => array(
+                'callback' => function($value, $object_id, $field_id) {
+                    $icon_url = $this->get_marker_category_icon_url($object_id, 'thumbnail');
+                    if ($icon_url) {
+                        echo '<img src="' . esc_url($icon_url) . '" style="max-width: 32px; max-height: 32px;" />';
+                    } else {
+                        echo '-';
+                    }
+                }
+            )
         );
         $fields['marker_popup_image'] = array(
             'label' => __('Image', 'wpumaps'),
@@ -661,7 +684,7 @@ class WPUMaps {
         return $uniqids;
     }
 
-    private function get_marker_icon_url($marker_id, $selected_categories = array()) {
+    private function get_marker_icon_url($marker_id, $selected_categories = array(), $any_category = false) {
         $icon_size = apply_filters('wpumaps_marker_icon_size', 'medium');
         $marker_icon_url = '';
         $marker_icon_id = get_post_meta($marker_id, 'marker_icon', 1);
@@ -673,16 +696,24 @@ class WPUMaps {
             return $marker_icon_url;
         }
         foreach ($categories as $category) {
-            if (!in_array($category->term_id, $selected_categories)) {
+            if (!$any_category && !in_array($category->term_id, $selected_categories)) {
                 continue;
             }
-            $category_icon_id = get_term_meta($category->term_id, 'marker_icon_category', 1);
-            if ($category_icon_id) {
-                return wp_get_attachment_image_url($category_icon_id, $icon_size);
+            $category_icon_url = $this->get_marker_category_icon_url($category->term_id, $icon_size);
+            if ($category_icon_url) {
+                return $category_icon_url;
             }
         }
 
         return $marker_icon_url;
+    }
+
+    private function get_marker_category_icon_url($category_id, $icon_size = 'medium') {
+        $category_icon_id = get_term_meta($category_id, 'marker_icon_category', 1);
+        if ($category_icon_id) {
+            return wp_get_attachment_image_url($category_icon_id, $icon_size);
+        }
+        return '';
     }
 
     public function get_map_details($map_id) {
@@ -741,7 +772,6 @@ class WPUMaps {
         }
 
         if (!$map_init) {
-            error_log('WPUMaps: No map ID, categories or marker ID provided for map display.');
             return '';
         }
 
@@ -1097,32 +1127,7 @@ class WPUMaps {
     ---------------------------------------------------------- */
 
     public function page_content__import() {
-        $example_file = base64_encode(file_get_contents(__DIR__ . '/inc/example-markers.csv'));
-        /* Import */
-        echo wpautop(__('Import markers from a CSV file. The file should contain the marker name, coordinates, address and popup content.', 'wpumaps'));
-        echo wpautop(__('The uniqid field is used to uniquely identify each marker and to allow updates during import. If a marker with the same uniqid already exists, it will be updated instead of creating a new one.', 'wpumaps'));
-        echo wpautop(__('New marker are created with the "draft" status, so you can review them before publishing.', 'wpumaps'));
-        echo '<input required type="file" name="wpumaps_import_file" accept=".csv" />';
-        echo '<p>';
-        submit_button(__('Import markers', 'wpumaps'), 'primary', 'wpumaps_import_markers', false);
-        echo ' <a href="' . esc_attr('data:text/csv;base64,' . $example_file) . '" class="button" download="example-markers.csv">' . esc_html(__('Example file', 'wpumaps')) . '</a>';
-        echo '</p>';
-
-        /* Find markers without lat or lng */
-        $markers_without_coordinates = $this->get_markers_without_coordinates();
-        if (!empty($markers_without_coordinates)) {
-            echo '<hr />';
-            echo '<h2>' . esc_html__('Markers with missing coordinates', 'wpumaps') . '</h2>';
-            echo '<ul>';
-            foreach ($markers_without_coordinates as $marker) {
-                $edit_link = get_edit_post_link($marker->ID);
-                echo '<li><a href="' . esc_url($edit_link) . '">' . esc_html(get_the_title($marker)) . '</a></li>';
-            }
-            echo '</ul>';
-            submit_button(__('Geocode markers with missing coordinates', 'wpumaps'), 'secondary', 'wpumaps_geocode_markers', true, array(
-                'formnovalidate' => 'formnovalidate'
-            ));
-        }
+        require_once __DIR__ . '/inc/tpl/admin-page-import.php';
     }
 
     public function page_action__import() {
@@ -1201,6 +1206,9 @@ class WPUMaps {
             $str = $markers_updated > 1 ? __('%d markers updated.', 'wpumaps') : __('%d marker updated.', 'wpumaps');
             $this->messages->set_message('update_success', sprintf($str, $markers_updated), 'updated');
         }
+        if ($new_markers > 0 || $markers_updated > 0) {
+            $this->generate_cache(array());
+        }
     }
 
     private function update_marker_from_import_item($marker_id, $item) {
@@ -1255,6 +1263,7 @@ class WPUMaps {
             $geocoded++;
         }
         if ($geocoded > 0) {
+            $this->generate_cache(array());
             $str = $geocoded > 1 ? __('%d markers geocoded.', 'wpumaps') : __('%d marker geocoded.', 'wpumaps');
             $this->messages->set_message('geocode_success', sprintf($str, $geocoded), 'updated');
         } else {
@@ -1264,7 +1273,7 @@ class WPUMaps {
 
     public function geocode_address($address) {
         $geocoding_endpoint = 'https://api.mapbox.com/search/geocode/' . $this->mapbox_geocoding_version . '/forward?q=' . rawurlencode($address) . '&access_token=' . $this->get_mapbox_key();
-        $geocode_informations = wp_remote_get($geocoding_endpoint);
+        $geocode_informations = wp_remote_get($geocoding_endpoint, array('timeout' => 5));
         if (is_wp_error($geocode_informations) || wp_remote_retrieve_response_code($geocode_informations) !== 200 || !isset($geocode_informations['body'])) {
             return false;
         }
@@ -1272,11 +1281,15 @@ class WPUMaps {
         if (!isset($geocode_informations['features']) || !is_array($geocode_informations['features']) || count($geocode_informations['features']) === 0) {
             return false;
         }
-        $coordinates = $geocode_informations['features'][0]['geometry']['coordinates'];
+        $feature = $geocode_informations['features'][0];
+        if (!isset($feature['geometry']['coordinates'][0], $feature['geometry']['coordinates'][1])) {
+            return false;
+        }
+        $coordinates = $feature['geometry']['coordinates'];
         return array(
             'lng' => $coordinates[0],
             'lat' => $coordinates[1],
-            'address' => $geocode_informations['features'][0]['properties']['full_address']
+            'address' => isset($feature['properties']['full_address']) ? $feature['properties']['full_address'] : ''
         );
     }
 
@@ -1285,29 +1298,7 @@ class WPUMaps {
     ---------------------------------------------------------- */
 
     public function page_content__export() {
-
-        $total_markers = wp_count_posts('map_markers');
-        if (empty($total_markers->publish) && empty($total_markers->draft)) {
-            echo wpautop(esc_html__('No marker found to export.', 'wpumaps'));
-            return;
-        }
-
-        echo wpautop(__('Export all your markers in a CSV file. The exported file contains the marker name, coordinates, address and popup content.', 'wpumaps'));
-        echo wpautop(__('This file can be used to import your markers. The uniqid field is used to uniquely identify each marker and to allow updates during import.', 'wpumaps'));
-        echo '<p>';
-        echo '<label for="wpumaps_export_categories">' . esc_html__('Export only markers from category:', 'wpumaps') . '</label><br />';
-        echo '<select name="wpumaps_export_categories" id="wpumaps_export_categories">';
-        echo '<option value="">' . esc_html__('All categories', 'wpumaps') . '</option>';
-        $categories = get_terms(array(
-            'taxonomy' => 'marker_categories',
-            'hide_empty' => false
-        ));
-        foreach ($categories as $category) {
-            echo '<option value="' . esc_attr($category->term_id) . '">' . esc_html($category->name) . ' (' . esc_html($category->count) . ')</option>';
-        }
-        echo '</select>';
-        echo '</p>';
-        submit_button(__('Export all markers', 'wpumaps'), 'primary', 'wpumaps_export_markers');
+        require_once __DIR__ . '/inc/tpl/admin-page-export.php';
     }
 
     public function page_action__export() {
