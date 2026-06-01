@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.17.0
+Version: 0.17.1
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.17.0';
+    private $plugin_version = '0.17.1';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -36,7 +36,7 @@ class WPUMaps {
     private $settings_details;
 
     # https://docs.mapbox.com/mapbox-gl-js/guides/get-started/use-with-cdn/
-    private $mapbox_version = 'v3.23.1';
+    private $mapbox_version = 'v3.24.0';
     # https://docs.mapbox.com/mapbox-search-js/guides/autofill/web/#installation-when-using-the-mapbox-cdn
     private $mapbox_autofill_version = 'v1.5.0';
     # https://docs.mapbox.com/api/search/geocoding/
@@ -353,7 +353,7 @@ class WPUMaps {
             'type' => 'image',
             'group' => 'markers',
             'admin_column' => array(
-                'callback' => function($value, $object_id, $field_id) {
+                'callback' => function ($value, $object_id, $field_id) {
                     $icon_url = $this->get_marker_icon_url($object_id, array(), true);
                     if ($icon_url) {
                         echo '<img src="' . esc_url($icon_url) . '" style="max-width: 32px; max-height: 32px;" />';
@@ -368,7 +368,7 @@ class WPUMaps {
             'type' => 'image',
             'group' => 'markers_category',
             'admin_column' => array(
-                'callback' => function($value, $object_id, $field_id) {
+                'callback' => function ($value, $object_id, $field_id) {
                     $icon_url = $this->get_marker_category_icon_url($object_id, 'thumbnail');
                     if ($icon_url) {
                         echo '<img src="' . esc_url($icon_url) . '" style="max-width: 32px; max-height: 32px;" />';
@@ -1010,13 +1010,34 @@ class WPUMaps {
                 $preview_url = add_query_arg(array(
                     'wpumaps_preview_map' => $post->ID
                 ), home_url('/'));
+                $this->preview_metabox_content($preview_url, __('Preview saved map', 'wpumaps'));
+            },
+            'maps',
+            'advanced',
+            'low'
+        );
+        add_meta_box(
+            'wpumaps_map_embed',
+            __('Embed', 'wpumaps'),
+            function ($post) {
                 $embed_url = '';
                 if (get_post_meta($post->ID, 'map_enable_embed', true)) {
                     $embed_url = add_query_arg(array(
                         'wpumaps_embed_map' => $post->ID
                     ), home_url('/'));
                 }
-                $this->preview_metabox_content($preview_url, __('Preview saved map', 'wpumaps'), $embed_url);
+
+                $this->embed_metabox_content($embed_url);
+            },
+            'maps',
+            'advanced',
+            'low'
+        );
+        add_meta_box(
+            'wpumaps_map_include',
+            __('Include in theme', 'wpumaps'),
+            function ($post) {
+                $this->include_metabox_content($post->ID);
             },
             'maps',
             'advanced',
@@ -1050,19 +1071,36 @@ class WPUMaps {
         );
     }
 
-    public function preview_metabox_content($preview_url, $button_label, $embed_url = '') {
+    public function preview_metabox_content($preview_url, $button_label) {
         echo '<button type="button" class="button wpumaps-preview-toggle" data-preview-url="' . esc_url($preview_url) . '">' . esc_html($button_label) . '</button>';
         echo '<div class="wpumaps-preview-iframe-wrap" style="display:none;margin-top:10px;">';
         echo '<iframe class="wpumaps-preview-iframe" style="width:100%;height:500px;border:1px solid #ccd0d4;"></iframe>';
         echo '</div>';
+    }
 
-        if ($embed_url) {
-            $iframe_code = '<iframe src="' . esc_url($embed_url) . '" width="100%" height="500" style="border:0;" loading="lazy"></iframe>';
-            echo '<div class="wpumaps-embed-box" style="margin-top:15px;">';
-            echo '<p style="margin:0 0 5px;"><strong>' . esc_html__('Embed code', 'wpumaps') . '</strong></p>';
-            echo '<textarea class="wpumaps-embed-code" readonly rows="2" style="width:100%;" onfocus="this.select();">' . esc_textarea($iframe_code) . '</textarea>';
-            echo '</div>';
+    public function embed_metabox_content($embed_url) {
+        if (!$embed_url) {
+            echo wpautop(esc_html__('Embedding is disabled for this map. To enable it, check the "Allow external embed" option in the map settings.', 'wpumaps'));
+            return;
         }
+        $iframe_code = '<iframe src="' . esc_url($embed_url) . '" width="100%" height="500" style="border:0;" loading="lazy"></iframe>';
+        echo '<div class="wpumaps-embed-box" style="margin-top:15px;">';
+        echo '<label for="wpumaps-embed-code">' . esc_html__('Embed code', 'wpumaps') . '</label><br />';
+        echo '<textarea id="wpumaps-embed-code" class="wpumaps-embed-code" readonly rows="2" style="width:100%;" onfocus="this.select();">' . esc_textarea($iframe_code) . '</textarea>';
+        echo '</div>';
+    }
+
+    public function include_metabox_content($map_id) {
+        $cache_file = $this->basefilecache->get_cache_dir() . 'map_' . $map_id;
+        $cache_file = str_replace(ABSPATH, '', $cache_file);
+        if (!file_exists(ABSPATH . $cache_file)) {
+            echo wpautop(esc_html__('Cache file not found. Please update the map to generate the cache.', 'wpumaps'));
+            return;
+        }
+        echo '<div class="wpumaps-include-file" style="margin-top:15px;">';
+        echo '<label for="wpumaps-include-file-path">' . esc_html__('Include file for theme', 'wpumaps') . '</label><br />';
+        echo '<input type="text" id="wpumaps-include-file-path" readonly class="wpumaps-include-file-path" value="' . esc_attr($cache_file) . '" onfocus="this.select();" style="width:100%;">';
+        echo '</div>';
     }
 
     public function preview_map() {
