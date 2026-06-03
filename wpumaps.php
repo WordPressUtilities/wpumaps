@@ -4,7 +4,7 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.17.1
+Version: 0.17.2
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.17.1';
+    private $plugin_version = '0.17.2';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -49,6 +49,7 @@ class WPUMaps {
         add_action('init', array(&$this, 'load_messages'));
         add_action('init', array(&$this, 'load_admin_pages'));
         add_action('init', array(&$this, 'load_toolbox'));
+        add_action('init', array(&$this, 'load_update'));
         add_action('init', array(&$this, 'load_fields'));
         add_action('init', array(&$this, 'load_settings'));
 
@@ -115,6 +116,14 @@ class WPUMaps {
         $this->basetoolbox = new \wpumaps\WPUBaseToolbox(array(
             'need_form_js' => false
         ));
+    }
+
+    public function load_update() {
+        require_once __DIR__ . '/inc/WPUBaseUpdate/WPUBaseUpdate.php';
+        new \wpumaps\WPUBaseUpdate(
+            'WordPressUtilities',
+            'wpumaps',
+            $this->plugin_version);
     }
 
     public function load_admin_pages() {
@@ -353,14 +362,9 @@ class WPUMaps {
             'type' => 'image',
             'group' => 'markers',
             'admin_column' => array(
-                'callback' => function ($value, $object_id, $field_id) {
-                    $icon_url = $this->get_marker_icon_url($object_id, array(), true);
-                    if ($icon_url) {
-                        echo '<img src="' . esc_url($icon_url) . '" style="max-width: 32px; max-height: 32px;" />';
-                    } else {
-                        echo '-';
-                    }
-                }
+                'callback' => $this->get_icon_admin_column_callback(function ($object_id) {
+                    return $this->get_marker_icon_url($object_id, array(), true);
+                })
             )
         );
         $fields['marker_icon_category'] = array(
@@ -368,14 +372,9 @@ class WPUMaps {
             'type' => 'image',
             'group' => 'markers_category',
             'admin_column' => array(
-                'callback' => function ($value, $object_id, $field_id) {
-                    $icon_url = $this->get_marker_category_icon_url($object_id, 'thumbnail');
-                    if ($icon_url) {
-                        echo '<img src="' . esc_url($icon_url) . '" style="max-width: 32px; max-height: 32px;" />';
-                    } else {
-                        echo '-';
-                    }
-                }
+                'callback' => $this->get_icon_admin_column_callback(function ($object_id) {
+                    return $this->get_marker_category_icon_url($object_id, 'thumbnail');
+                })
             )
         );
         $fields['marker_popup_image'] = array(
@@ -682,6 +681,18 @@ class WPUMaps {
             $uniqids[$uniqid] = $marker_id;
         }
         return $uniqids;
+    }
+
+    /* Build an admin column callback rendering an icon thumbnail from a URL resolver */
+    private function get_icon_admin_column_callback(callable $url_resolver) {
+        return function ($value, $object_id, $field_id) use ($url_resolver) {
+            $icon_url = $url_resolver($object_id);
+            if ($icon_url) {
+                echo '<img src="' . esc_url($icon_url) . '" style="max-width: 32px; max-height: 32px;" />';
+            } else {
+                echo '-';
+            }
+        };
     }
 
     private function get_marker_icon_url($marker_id, $selected_categories = array(), $any_category = false) {
@@ -1192,6 +1203,14 @@ class WPUMaps {
         }
 
         $headers = fgetcsv($csv_file);
+        if (!$headers || !is_array($headers)) {
+            fclose($csv_file);
+            $this->messages->set_message('invalid_csv_file', __('Invalid CSV file.', 'wpumaps'), 'error');
+            return false;
+        }
+        /* Strip UTF-8 BOM from the first header to keep column matching reliable */
+        $headers[0] = preg_replace('/^\xEF\xBB\xBF/', '', $headers[0]);
+
         $import_data = array();
 
         while (($row = fgetcsv($csv_file)) !== false) {
