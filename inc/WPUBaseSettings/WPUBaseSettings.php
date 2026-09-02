@@ -4,7 +4,7 @@ namespace wpumaps;
 /*
 Class Name: WPU Base Settings
 Description: A class to handle native settings in WordPress admin
-Version: 0.25.0
+Version: 0.27.0
 Class URI: https://github.com/WordPressUtilities/wpubaseplugin
 Author: Darklg
 Author URI: https://darklg.me/
@@ -21,6 +21,7 @@ class WPUBaseSettings {
     private $admin_url = false;
     private $is_admin_page = false;
     private $has_create_page = false;
+    private $is_network = false;
     public $settings = array();
     public $settings_details = array();
 
@@ -47,19 +48,27 @@ class WPUBaseSettings {
         add_action('admin_init', array(&$this,
             'add_settings'
         ));
-        add_filter('option_page_capability_' . $this->settings_details['option_id'], array(&$this,
-            'set_min_capability'
-        ));
-        add_action('admin_notices', array(&$this,
-            'admin_notices'
-        ));
+        if ($this->is_network) {
+            add_action('network_admin_edit_' . $this->settings_details['plugin_id'], array(&$this,
+                'save_network_settings'
+            ));
+        } else {
+            add_filter('option_page_capability_' . $this->settings_details['option_id'], array(&$this,
+                'set_min_capability'
+            ));
+            add_action('admin_notices', array(&$this,
+                'admin_notices'
+            ));
+        }
         if ($this->has_create_page) {
-            add_action('admin_menu', array(&$this,
+            add_action($this->is_network ? 'network_admin_menu' : 'admin_menu', array(&$this,
                 'admin_menu'
             ));
-            $this->admin_url = add_query_arg('page', $this->settings_details['plugin_id'], admin_url($this->settings_details['parent_page_url']));
+            $base_url = $this->is_network ? network_admin_url($this->settings_details['parent_page_url']) : admin_url($this->settings_details['parent_page_url']);
+            $this->admin_url = add_query_arg('page', $this->settings_details['plugin_id'], $base_url);
             if (isset($settings_details['plugin_basename'])) {
-                add_filter("plugin_action_links_" . $settings_details['plugin_basename'], array(&$this, 'plugin_add_settings_link'));
+                $links_filter = $this->is_network ? 'network_admin_plugin_action_links_' : 'plugin_action_links_';
+                add_filter($links_filter . $settings_details['plugin_basename'], array(&$this, 'plugin_add_settings_link'));
             }
         } else {
             add_action('init', array(&$this, 'load_assets'));
@@ -94,7 +103,58 @@ class WPUBaseSettings {
     public function update_setting($id, $value) {
         $opt = $this->get_settings();
         $opt[$id] = $value;
-        update_option($this->settings_details['option_id'], $opt);
+        $this->update_opt($opt);
+    }
+
+    /* Storage : network options in network mode, regular options otherwise */
+    public function get_opt() {
+        if ($this->is_network) {
+            return get_site_option($this->settings_details['option_id']);
+        }
+        return get_option($this->settings_details['option_id']);
+    }
+
+    public function update_opt($value) {
+        if ($this->is_network) {
+            return update_site_option($this->settings_details['option_id'], $value);
+        }
+        return update_option($this->settings_details['option_id'], $value);
+    }
+
+    public function get_form_action() {
+        if ($this->is_network) {
+            return network_admin_url('edit.php?action=' . $this->settings_details['plugin_id']);
+        }
+        return admin_url('options.php');
+    }
+
+    /* Override : returns the constant name bound to a setting, or false */
+    public function get_setting_constant_name($id) {
+        if (!isset($this->settings[$id])) {
+            return false;
+        }
+        /* Multilingual not supported */
+        if (isset($this->settings[$id]['translated_from']) || isset($this->settings[$id]['lang_id'])) {
+            return false;
+        }
+        if (isset($this->settings[$id]['constant']) && $this->settings[$id]['constant']) {
+            return $this->settings[$id]['constant'];
+        }
+        return strtoupper($this->settings_details['option_id'] . '_' . $id);
+    }
+
+    /* Override : forced value if the constant is defined */
+    public function get_setting_constant_value($id) {
+        $constant_name = $this->get_setting_constant_name($id);
+        if ($constant_name && defined($constant_name)) {
+            return constant($constant_name);
+        }
+        return false;
+    }
+
+    public function is_setting_overridden($id) {
+        $constant_name = $this->get_setting_constant_name($id);
+        return $constant_name && defined($constant_name);
     }
 
     public function set_min_capability() {
@@ -108,14 +168,22 @@ class WPUBaseSettings {
         if (!isset($settings_details['plugin_id'])) {
             $settings_details['plugin_id'] = 'wpubasesettingsdefault';
         }
+        if (!isset($settings_details['network_options'])) {
+            $settings_details['network_options'] = false;
+        }
+        $this->is_network = $settings_details['network_options'] && is_multisite();
         if (!isset($settings_details['user_cap'])) {
-            $settings_details['user_cap'] = 'manage_options';
+            $settings_details['user_cap'] = $this->is_network ? 'manage_network_options' : 'manage_options';
         }
         if (!isset($settings_details['option_id'])) {
             $settings_details['option_id'] = $settings_details['plugin_id'] . '_options';
         }
         if (!isset($settings_details['parent_page'])) {
             $settings_details['parent_page'] = 'options-general.php';
+        }
+        /* Network admin has no options-general.php : use its settings page */
+        if ($this->is_network && $settings_details['parent_page'] == 'options-general.php') {
+            $settings_details['parent_page'] = 'settings.php';
         }
         if (!isset($settings_details['parent_page_url'])) {
             $settings_details['parent_page_url'] = $settings_details['parent_page'];
@@ -262,8 +330,13 @@ class WPUBaseSettings {
     }
 
     public function options_validate($input) {
-        $options = get_option($this->settings_details['option_id']);
+        $options = $this->get_opt();
         foreach ($this->settings as $id => $setting) {
+
+            // Override : never write to DB if a constant forces the value
+            if ($this->is_setting_overridden($id)) {
+                continue;
+            }
 
             // If regex : use it to validate the field
             if (isset($setting['regex'])) {
@@ -335,7 +408,7 @@ class WPUBaseSettings {
 
     public function render__field($args = array()) {
         $option_id = $this->settings_details['option_id'];
-        $options = get_option($option_id);
+        $options = $this->get_opt();
         $name_val = $option_id . '[' . $args['id'] . ']';
         $name = ' name="' . $name_val . '" ';
         $id = ' id="' . $args['id'] . '" ';
@@ -357,15 +430,24 @@ class WPUBaseSettings {
         if (isset($args['attributes_html']) && $args['attributes_html']) {
             $attr .= ' ' . $args['attributes_html'];
         }
+        /* Override : non-editable field if a constant is defined */
+        $is_overridden = $this->is_setting_overridden($args['id']);
+        if ($is_overridden) {
+            $readonly_types = array('text', 'textarea', 'url', 'email', 'number', 'password');
+            $attr .= in_array($args['type'], $readonly_types) ? ' readonly ' : ' disabled="disabled" ';
+        }
         $id .= $attr;
         $value = isset($options[$args['id']]) ? $options[$args['id']] : $args['default_value'];
         if (!isset($options[$args['id']]) && isset($args['translated_from']) && $args['translated_from'] && isset($options[$args['translated_from']]) && $options[$args['translated_from']]) {
             $value = $options[$args['translated_from']];
         }
+        if ($is_overridden) {
+            $value = $this->get_setting_constant_value($args['id']);
+        }
 
         switch ($args['type']) {
         case 'checkbox':
-            $checked_val = isset($options[$args['id']]) ? $options[$args['id']] : '0';
+            $checked_val = $is_overridden ? $value : (isset($options[$args['id']]) ? $options[$args['id']] : '0');
             echo '<label><input type="checkbox" ' . $name . ' ' . $id . ' ' . checked($checked_val, '1', 0) . ' value="1" /> ' . $args['label_check'] . '</label>';
             break;
         case 'textarea':
@@ -441,6 +523,12 @@ class WPUBaseSettings {
         case 'email':
         case 'text':
             echo '<input ' . $name . ' ' . $id . ' type="' . esc_attr($args['type']) . '" value="' . esc_attr($value) . '" />';
+        }
+        if ($is_overridden) {
+            echo '<div class="wpubasesettings-overridden-notice"><small>' . sprintf(
+                __('This value is set by the constant %s and cannot be edited here.', __NAMESPACE__),
+                '<code>' . esc_html($this->get_setting_constant_name($args['id'])) . '</code>'
+            ) . '</small></div>';
         }
         if (!empty($args['help'])) {
             echo '<div><small>' . $args['help'] . '</small></div>';
@@ -706,6 +794,21 @@ EOT;
         add_action('load-' . $this->hook_page, array(&$this, 'load_assets'));
     }
 
+    public function save_network_settings() {
+        $option_id = $this->settings_details['option_id'];
+        check_admin_referer($option_id . '-options');
+        if (!current_user_can($this->settings_details['user_cap'])) {
+            wp_die(__('You do not have sufficient permissions to access this page.', __NAMESPACE__));
+        }
+        $input = isset($_POST[$option_id]) && is_array($_POST[$option_id]) ? $_POST[$option_id] : array();
+        $this->update_opt($this->options_validate($input));
+        wp_redirect(add_query_arg(array(
+            'page' => $this->settings_details['plugin_id'],
+            'updated' => 'true'
+        ), network_admin_url($this->settings_details['parent_page_url'])));
+        exit;
+    }
+
     public function plugin_add_settings_link($links) {
         $settings_link = '<a href="' . $this->admin_url . '">' . __('Settings', __NAMESPACE__) . '</a>';
         array_push($links, $settings_link);
@@ -717,9 +820,12 @@ EOT;
         do_action('wpubasesettings_after_wrap_start' . $this->hook_page);
         echo apply_filters('wpubasesettings_page_title_' . $this->hook_page, '<h1>' . get_admin_page_title() . '</h1>');
         do_action('wpubasesettings_before_content_' . $this->hook_page);
+        if ($this->is_network && isset($_GET['updated'])) {
+            echo '<div class="notice notice-success is-dismissible"><p>' . __('Settings saved.', __NAMESPACE__) . '</p></div>';
+        }
         if (current_user_can($this->settings_details['user_cap'])) {
             echo apply_filters('wpubasesettings_before_form_' . $this->hook_page, '<hr />');
-            echo '<form action="' . admin_url('options.php') . '" method="post">';
+            echo '<form action="' . esc_url($this->get_form_action()) . '" method="post">';
             settings_fields($this->settings_details['option_id']);
             do_settings_sections($this->settings_details['plugin_id']);
             echo submit_button(__('Save', __NAMESPACE__));
@@ -739,7 +845,7 @@ EOT;
         if (!$lang) {
             $lang = $this->get_current_language();
         }
-        $settings = get_option($this->settings_details['option_id']);
+        $settings = $this->get_opt();
         if (!is_array($settings)) {
             $settings = array();
         }
@@ -754,6 +860,10 @@ EOT;
             }
             if (isset($setting['translated_from'], $setting['lang_id'], $settings[$key]) && $lang == $setting['lang_id'] && $settings[$key] !== false) {
                 $settings[$setting['translated_from']] = $settings[$key];
+            }
+            /* Override : a defined constant always wins over the stored value */
+            if ($this->is_setting_overridden($key)) {
+                $settings[$key] = $this->get_setting_constant_value($key);
             }
         }
         return $settings;
