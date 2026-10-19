@@ -588,10 +588,8 @@ msgid "Embed code"
 msgstr "Code d'intégration"
 
 #: .././wpumaps.php:1097
-msgid "Cache file not found. Please update the map to generate the cache."
-msgstr ""
-"Fichier de cache introuvable. Veuillez mettre à jour la carte pour générer "
-"le cache."
+msgid "Publish the map to generate the include file."
+msgstr "Publiez la carte pour générer le fichier d'inclusion."
 
 #: .././wpumaps.php:1101
 msgid "Include file for theme"

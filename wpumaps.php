@@ -4,12 +4,12 @@ Plugin Name: WPU Maps
 Plugin URI: https://github.com/WordPressUtilities/wpumaps
 Update URI: https://github.com/WordPressUtilities/wpumaps
 Description: Simple maps for your website
-Version: 0.18.0
+Version: 0.18.1
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpumaps
 Domain Path: /lang
-Requires at least: 6.2
+Requires at least: 6.9
 Requires PHP: 8.0
 Network: Optional
 License: MIT License
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 class WPUMaps {
-    private $plugin_version = '0.18.0';
+    private $plugin_version = '0.18.1';
     private $plugin_settings = array(
         'user_capability' => 'edit_others_posts',
         'id' => 'wpumaps',
@@ -29,6 +29,8 @@ class WPUMaps {
     );
     private $basetoolbox;
     private $basefilecache;
+    /* null : nothing queued, empty array : all maps */
+    private $cache_queue = null;
     private $baseadminpages;
     private $messages;
     private $settings;
@@ -66,11 +68,12 @@ class WPUMaps {
         add_action('admin_notices', array(&$this, 'admin_notices__map_markers'));
 
         /* Cache */
-        add_action('trashed_post', array(&$this, 'deleted_post'), 999, 3);
-        add_action('deleted_post', array(&$this, 'deleted_post'), 999, 3);
-        add_action('save_post', array(&$this, 'save_post_maps'), 999, 3);
-        add_action('save_post', array(&$this, 'save_post_map_markers'), 999, 3);
-        add_action('saved_marker_categories', array(&$this, 'generate_cache'), 999, 3);
+        add_action('trashed_post', array(&$this, 'deleted_post'), 999, 1);
+        add_action('deleted_post', array(&$this, 'deleted_post'), 999, 2);
+        add_action('save_post_maps', array(&$this, 'save_post_maps'), 999, 1);
+        add_action('save_post_map_markers', array(&$this, 'queue_cache'), 999, 0);
+        add_action('saved_marker_categories', array(&$this, 'queue_cache'), 999, 0);
+        add_action('shutdown', array(&$this, 'process_cache_queue'));
 
         /* Assets */
         add_action('admin_enqueue_scripts', array(&$this, 'admin_enqueue_scripts'));
@@ -762,9 +765,17 @@ class WPUMaps {
         $map_init = false;
 
         if (isset($atts['id']) && !empty($atts['id'])) {
-            $data = $this->basefilecache->get_cache('map_' . $atts['id'], 0);
-            if ($data && (!isset($atts['nocache']) || !$atts['nocache'])) {
-                return $data;
+            if (!isset($atts['nocache']) || !$atts['nocache']) {
+                $cache_id = 'map_' . absint($atts['id']);
+                $data = $this->basefilecache->get_cache($cache_id, 0);
+                if (!$data) {
+                    /* Missing cache file : rebuild it (published maps only) */
+                    $this->generate_cache(array($atts['id']));
+                    $data = $this->basefilecache->get_cache($cache_id, 0);
+                }
+                if ($data) {
+                    return $data;
+                }
             }
             $map_details = $this->get_map_details($atts['id']);
             $markers = $this->get_markers_from_map(array('map_id' => $atts['id']));
@@ -910,35 +921,37 @@ class WPUMaps {
     }
 
     /* Purge cache */
-    public function deleted_post($post_ID) {
-        $post_type = get_post_type($post_ID);
+    public function deleted_post($post_ID, $post = null) {
+        /* On deleted_post, the post is already gone from the DB */
+        $post_type = $post instanceof \WP_Post ? $post->post_type : get_post_type($post_ID);
         if ($post_type === 'maps') {
-            $this->generate_cache(array($post_ID));
+            $this->queue_cache(array($post_ID));
         } elseif ($post_type === 'map_markers') {
-            $this->generate_cache(array());
+            $this->queue_cache();
         }
     }
 
     /* Create cache */
-
     public function save_post_maps($post_ID) {
-        if (wp_is_post_autosave($post_ID) || wp_is_post_revision($post_ID) || !current_user_can('edit_post', $post_ID)) {
-            return;
-        }
-        if (!isset($_POST['post_type']) || $_POST['post_type'] !== 'maps') {
-            return;
-        }
-        $this->generate_cache(array($post_ID));
+        $this->queue_cache(array($post_ID));
     }
 
-    public function save_post_map_markers($post_ID) {
-        if (wp_is_post_autosave($post_ID) || wp_is_post_revision($post_ID) || !current_user_can('edit_post', $post_ID)) {
+    /* Empty array : all maps */
+    public function queue_cache($map_ids = array()) {
+        if (empty($map_ids) || $this->cache_queue === array()) {
+            $this->cache_queue = array();
             return;
         }
-        if (!isset($_POST['post_type']) || $_POST['post_type'] !== 'map_markers') {
+        $this->cache_queue = array_values(array_unique(array_merge((array) $this->cache_queue, $map_ids)));
+    }
+
+    /* Regenerate once per request, even after a bulk import */
+    public function process_cache_queue() {
+        if ($this->cache_queue === null || !$this->basefilecache) {
             return;
         }
-        $this->generate_cache(array());
+        $this->generate_cache($this->cache_queue);
+        $this->cache_queue = null;
     }
 
     public function generate_cache($cache_to_generate) {
@@ -951,7 +964,12 @@ class WPUMaps {
         }
 
         foreach ($cache_to_generate as $map_id) {
-            // Trigger cache generation
+            $map_id = absint($map_id);
+            /* Only published maps have a cache file */
+            if (get_post_type($map_id) !== 'maps' || get_post_status($map_id) !== 'publish') {
+                $this->basefilecache->delete_cache('map_' . $map_id);
+                continue;
+            }
             $data = $this->get_map_data(array('id' => $map_id, 'nocache' => true));
             $this->basefilecache->set_cache('map_' . $map_id, $data);
         }
@@ -1105,7 +1123,10 @@ class WPUMaps {
         $cache_file = $this->basefilecache->get_cache_dir() . 'map_' . $map_id;
         $cache_file = str_replace(ABSPATH, '', $cache_file);
         if (!file_exists(ABSPATH . $cache_file)) {
-            echo wpautop(esc_html__('Cache file not found. Please update the map to generate the cache.', 'wpumaps'));
+            $this->generate_cache(array($map_id));
+        }
+        if (!file_exists(ABSPATH . $cache_file)) {
+            echo wpautop(esc_html__('Publish the map to generate the include file.', 'wpumaps'));
             return;
         }
         echo '<div class="wpumaps-include-file" style="margin-top:15px;">';
@@ -1176,7 +1197,7 @@ class WPUMaps {
     ---------------------------------------------------------- */
 
     public function page_content__import() {
-        require_once __DIR__ . '/inc/tpl/admin-page-import.php';
+        include __DIR__ . '/inc/tpl/admin-page-import.php';
     }
 
     public function page_action__import() {
@@ -1264,7 +1285,7 @@ class WPUMaps {
             $this->messages->set_message('update_success', sprintf($str, $markers_updated), 'updated');
         }
         if ($new_markers > 0 || $markers_updated > 0) {
-            $this->generate_cache(array());
+            $this->queue_cache();
         }
     }
 
@@ -1320,7 +1341,7 @@ class WPUMaps {
             $geocoded++;
         }
         if ($geocoded > 0) {
-            $this->generate_cache(array());
+            $this->queue_cache();
             $str = $geocoded > 1 ? __('%d markers geocoded.', 'wpumaps') : __('%d marker geocoded.', 'wpumaps');
             $this->messages->set_message('geocode_success', sprintf($str, $geocoded), 'updated');
         } else {
@@ -1355,7 +1376,7 @@ class WPUMaps {
     ---------------------------------------------------------- */
 
     public function page_content__export() {
-        require_once __DIR__ . '/inc/tpl/admin-page-export.php';
+        include __DIR__ . '/inc/tpl/admin-page-export.php';
     }
 
     public function page_action__export() {
